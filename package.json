@@ -1,0 +1,27 @@
+{
+  "name": "projectx",
+  "version": "1.0.0",
+  "description": "This is a repository for a share market analysis project built with React js, Nest js, and PostgreSQL.",
+  "main": " ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/X-nimesh/Robinhood_AI.git"
+  },
+  "keywords": [
+    "Machine",
+    "Learning",
+    "React",
+    "Node",
+    "Postgres",
+    "Nest"
+  ],
+  "author": "Nimesh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/X-nimesh/Robinhood_AI/issues"
+  },
+  "homepage": "https://github.com/X-nimesh/Robinhood_AI#readme"
+}

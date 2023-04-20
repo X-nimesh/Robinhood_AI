@@ -1,6 +1,9 @@
 import { Flex, Text, Image, Box, Input, Button } from '@chakra-ui/react'
 import React from 'react'
 import { Formik, Form, Field, ErrorMessage, useFormik } from 'formik';
+import axios from 'axios';
+import * as dotenv from 'dotenv'
+dotenv.config({ path: '../dev.env' })
 const Login = () => {
     const formik = useFormik({
         initialValues: {
@@ -8,6 +11,7 @@ const Login = () => {
             password: '',
         },
         onSubmit: values => {
+            axios.get("http://localhost:3000/");
             alert(JSON.stringify(values, null, 2));
         },
     });
