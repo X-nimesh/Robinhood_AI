@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: '*' });
   const config = new DocumentBuilder()
     .setTitle('Project Share Analysis API')
     .setDescription('API for project share market analysis')

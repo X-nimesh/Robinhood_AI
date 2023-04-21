@@ -28,12 +28,26 @@ const theme = extendTheme({
       variants: {
         Login: {
           fontSize: "18px",
-          backgroundColor: "#00C805",
+          backgroundColor: "black",
+          fontColor: "white",
           color: "white",
           fontWeight: "bold",
           _hover: {
-            backgroundColor: "limegreen",
+            backgroundColor: "rgba(38, 38, 38, 1);",
             color: "white",
+            transform: "scale(1.05)",
+          },
+        },
+        signup: {
+          fontSize: "18px",
+          backgroundColor: "black",
+          fontColor: "white",
+          color: "white",
+          fontWeight: "bold",
+          _hover: {
+            backgroundColor: "rgba(38, 38, 38, 1);",
+            color: "white",
+            transform: "scale(1.05)",
           },
         },
       },

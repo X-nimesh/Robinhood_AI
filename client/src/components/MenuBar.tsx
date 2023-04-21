@@ -7,7 +7,7 @@ const MenuBar = () => {
     console.log(location);
     return (
         <>
-            {location.pathname === '/login' ? null : (
+            {location.pathname === '/login' || '/signup' ? null : (
                 <Flex w="100%" p="20px 0px"
                     justifyContent="space-between"
                     alignItems={"center"}
@@ -35,7 +35,7 @@ const MenuBar = () => {
                                 Login
                             </Text>
                         </NavLink>
-                        <NavLink to='/'>
+                        <NavLink to='/signup'>
                             <Text variant={"menu"} >
                                 Sign-Up
                             </Text>

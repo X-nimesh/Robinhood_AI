@@ -4,7 +4,9 @@
   "description": "This is a repository for a share market analysis project built with React js, Nest js, and PostgreSQL.",
   "main": " ",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "cd server && npm run start:dev",
+    "client": "cd client && npm run dev"
   },
   "repository": {
     "type": "git",
@@ -23,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/X-nimesh/Robinhood_AI/issues"
   },
-  "homepage": "https://github.com/X-nimesh/Robinhood_AI#readme"
+  "homepage": "https://github.com/X-nimesh/Robinhood_AI#readme",
+  "dependencies": {
+    "concurrently": "^8.0.1"
+  }
 }

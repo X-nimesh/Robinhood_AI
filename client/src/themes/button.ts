@@ -3,7 +3,8 @@ const buttonTheme = {
     Login: {
       fontSize: "18px",
       fontWeight: "semi-bold",
-      backgroundColor: "#00C805",
+      backgroundColor: "black",
+      fontColor: "white",
     },
   },
 };
