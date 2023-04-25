@@ -9,6 +9,7 @@ async function bootstrap() {
     .setTitle('Project Share Analysis API')
     .setDescription('API for project share market analysis')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('Share Analysis')
     .build();
   const document = SwaggerModule.createDocument(app, config);

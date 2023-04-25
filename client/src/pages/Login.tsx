@@ -5,9 +5,11 @@ import axios from 'axios';
 import * as dotenv from 'dotenv'
 import * as Yup from 'yup';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react'
 const Login = () => {
+    let navigate = useNavigate();
+
     const schema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Required'),
         password: Yup.string()
@@ -33,6 +35,12 @@ const Login = () => {
                     password: values.password
                 });
                 console.log(data);
+                localStorage.setItem('access_token', data.data.access_token);
+                toast({
+                    title: "Login Successful.",
+                    description: "We've logged you in.",
+                })
+                navigate('/');
             } catch (error: any) {
                 console.log(error);
                 seterrorFromServer(error.response.data.message);
@@ -106,7 +114,7 @@ const Login = () => {
                             </Box>
                             <Button type="submit" variant={"Login"}>Submit</Button>
                             <Text>Don't have Account? <NavLink to="/signup">
-                                <Text as="span" color={"blue"} textDecoration={"underline"} fontWeight={"semi-bold"}>Click Here</Text>
+                                <Text as="span" color={"blue"} textDecoration={"underline"} fontWeight={"semi-bold"}>Signup</Text>
                             </NavLink>
                             </Text>
 

@@ -35,4 +35,7 @@ export class UsersService {
   async findOne(email: string): Promise<any> {
     return this.userRepo.findOne({ where: { email } });
   }
+  async getUser(id: string) {
+    return this.userRepo.findOne({ where: { id: parseInt(id) } });
+  }
 }

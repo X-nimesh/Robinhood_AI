@@ -1,13 +1,33 @@
 import { Flex, Image, Text } from '@chakra-ui/react'
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-
+import { CgProfile } from "react-icons/cg";
 const MenuBar = () => {
     let location = useLocation();
-    console.log(location);
+    const [userId, setuserId] = useState(null);
+    const checkLogin = async (token: string) => {
+        let res = await axios.get("http://localhost:3000/user/token",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        setuserId(res.data.userId);
+    }
+    useEffect(() => {
+        console.log(localStorage.getItem("access_token"));
+        if (localStorage.getItem("access_token")) {
+            checkLogin(localStorage.getItem("access_token")!);
+        }
+
+    }, [])
+    console.log("userID: " + userId);
+    // console.log(location.pathname);
+    // console.log(location);
     return (
         <>
-            {location.pathname === '/login' || '/signup' ? null : (
+            {location.pathname === '/login' || location.pathname === '/signup' ? null : (
                 <Flex w="100%" p="20px 0px"
                     justifyContent="space-between"
                     alignItems={"center"}
@@ -30,16 +50,29 @@ const MenuBar = () => {
                                 Portfolio
                             </Text>
                         </NavLink>
-                        <NavLink to='/login'>
-                            <Text variant={"menu"} color="#15ff55">
-                                Login
-                            </Text>
-                        </NavLink>
-                        <NavLink to='/signup'>
-                            <Text variant={"menu"} >
-                                Sign-Up
-                            </Text>
-                        </NavLink>
+                        {userId ? (
+                            <NavLink to='/profile'>
+                                <Text _hover={
+                                    {
+                                        color: "#15ff55"
+                                    }
+                                }>
+                                    <CgProfile size={'25px'} />
+                                </Text>
+                            </NavLink>
+                        ) : (
+                            <>
+                                <NavLink to='/login'>
+                                    <Text variant={"menu"} color="#15ff55">
+                                        Login
+                                    </Text>
+                                </NavLink>
+                                <NavLink to='/signup'>
+                                    <Text variant={"menu"} >
+                                        Sign-Up
+                                    </Text>
+                                </NavLink>
+                            </>)}
 
                     </Flex>
                 </Flex >)}
