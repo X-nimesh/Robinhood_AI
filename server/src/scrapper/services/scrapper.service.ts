@@ -86,7 +86,6 @@ export class ScrapperService {
         let dataRow = {};
         for (let j = 0; j < cells.length; j++) {
           const text = await cells[j].evaluate((node) => node.innerText);
-          console.log(`Row ${i + 1}, Cell ${j + 1}: ${text}`);
         }
         if (cells.length > 0) {
           dataRow = {
