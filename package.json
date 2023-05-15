@@ -28,5 +28,8 @@
   "homepage": "https://github.com/X-nimesh/Robinhood_AI#readme",
   "dependencies": {
     "concurrently": "^8.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.1"
   }
 }

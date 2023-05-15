@@ -7,7 +7,7 @@ const Home = () => {
         getPrices();
     }, [])
     const getPrices = async () => {
-        const prices = await axios.get("http://localhost:3000/scrap")
+        const prices = await axios.get("http://localhost:3000/scrap/test")
         console.log(prices);
     }
     return (

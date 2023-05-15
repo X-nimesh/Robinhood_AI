@@ -11,4 +11,12 @@ export class ScrapperController {
   async scrap() {
     return await this.scrapperService.scrapAllPrice();
   }
+  @Get('/test')
+  async scraptry() {
+    return await this.scrapperService.scrapTry();
+  }
+  @Get('/test2')
+  async scraptry2() {
+    return await this.scrapperService.scrapAlltryPrice();
+  }
 }

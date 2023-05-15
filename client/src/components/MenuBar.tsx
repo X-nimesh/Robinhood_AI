@@ -1,45 +1,74 @@
-import { Flex, Image, Text } from '@chakra-ui/react'
+import { Button, Flex, Image, Text } from '@chakra-ui/react'
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { CgProfile } from "react-icons/cg";
+import {
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    MenuItemOption,
+    MenuGroup,
+    MenuOptionGroup,
+    MenuDivider,
+} from '@chakra-ui/react'
+import { BiDownArrow } from 'react-icons/bi';
 const MenuBar = () => {
+    const navigate = useNavigate();
     let location = useLocation();
     const [userId, setuserId] = useState(null);
+    const [name, setname] = useState('')
     const checkLogin = async (token: string) => {
-        let res = await axios.get("http://localhost:3000/user/token",
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-        setuserId(res.data.userId);
-    }
-    useEffect(() => {
-        console.log(localStorage.getItem("access_token"));
-        if (localStorage.getItem("access_token")) {
-            checkLogin(localStorage.getItem("access_token")!);
+        try {
+            let res = await axios.get("http://localhost:3000/user/token",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+            setname(res?.data.name.split(" ")[0]);
+            localStorage.setItem("uid", res?.data.userId);
+            setuserId(res?.data.userId);
+        } catch (error: any) {
+            // console.log(error);
         }
 
-    }, [])
-    console.log("userID: " + userId);
-    // console.log(location.pathname);
-    // console.log(location);
+    }
+    checkLogin(localStorage.getItem("access_token")!);
+
+
+    function Logout() {
+        localStorage.removeItem("access_token");
+        navigate('/')
+        window.location.reload();
+    }
+
     return (
         <>
             {location.pathname === '/login' || location.pathname === '/signup' ? null : (
-                <Flex w="100%" p="20px 0px"
+                <Flex w="100%"
+                    p="20px  70px"
                     justifyContent="space-between"
                     alignItems={"center"}
-
+                    position={"fixed"}
+                    top={0}
+                    background={"#000c1ead"}
+                    textColor={'white'}
+                    backdropFilter={'blur(10px)'}
                 >
-                    <Image src='./robinhood.png' w="40px" />
-                    <Flex w="30vw" justifyContent={"space-evenly"} h="20px">
-                        <NavLink to='/'>
-                            <Text variant={"menu"}>
-                                Home
-                            </Text>
-                        </NavLink>
+                    <Image src='/RobinhoodFullLogo.png' w="200px" />
+                    <Flex w="30vw" justifyContent={"space-evenly"} h="20px" minW="450px">
+                        {userId ? (
+                            <NavLink to='/dashboard'>
+                                <Text variant={"menu"}>
+                                    Dashboard
+                                </Text>
+                            </NavLink>) : (<NavLink to='/'>
+                                <Text variant={"menu"}>
+                                    Home
+                                </Text>
+                            </NavLink>)}
                         <NavLink to='/about'>
                             <Text variant={"menu"}>
                                 About
@@ -51,15 +80,35 @@ const MenuBar = () => {
                             </Text>
                         </NavLink>
                         {userId ? (
-                            <NavLink to='/profile'>
-                                <Text _hover={
-                                    {
-                                        color: "#15ff55"
-                                    }
-                                }>
-                                    <CgProfile size={'25px'} />
-                                </Text>
-                            </NavLink>
+                            < >
+                                {/* <Text fontWeight={"bold"} >
+                                        {name}
+                                    </Text> */}
+                                <Menu>
+                                    <MenuButton background={"transparent"} >
+                                        <Flex gap="10px"
+                                            transition={"ease-in-out 0.2s"}
+                                            _hover={
+                                                {
+                                                    color: "#15ff55"
+                                                }}>
+                                            <CgProfile size={'25px'} />
+                                            {name}
+                                        </Flex>
+
+                                    </MenuButton>
+                                    <MenuList background={"transparent"} >
+                                        <Flex flexDirection={"column"} paddingLeft={"30px"}>
+                                            <NavLink to={'profile'} >Profile</NavLink>
+                                            <Text cursor={"pointer"} onClick={Logout}>Log out</Text>
+                                        </Flex>
+                                    </MenuList>
+                                </Menu>
+                                {/* <Text >
+                                        <CgProfile size={'25px'} />
+                                    </Text> */}
+                                {/* </Flex> */}
+                            </>
                         ) : (
                             <>
                                 <NavLink to='/login'>
@@ -75,7 +124,8 @@ const MenuBar = () => {
                             </>)}
 
                     </Flex>
-                </Flex >)}
+                </Flex >)
+            }
         </>
 
     )

@@ -40,7 +40,7 @@ const Login = () => {
                     title: "Login Successful.",
                     description: "We've logged you in.",
                 })
-                navigate('/');
+                navigate('/dashboard');
             } catch (error: any) {
                 console.log(error);
                 seterrorFromServer(error.response.data.message);

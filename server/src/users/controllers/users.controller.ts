@@ -34,7 +34,12 @@ export class UsersController {
   @UseGuards(jwtGuard)
   @Get('/token')
   async checkToken(@Req() req) {
-    return { userId: req.user.userId, message: 'Token is valid' };
+    console.log(req.user);
+    return {
+      userId: req.user.userId,
+      name: req.user.name,
+      email: req.user.email,
+    };
   }
   @Get('/user/:id')
   async getUser(@Req() req) {

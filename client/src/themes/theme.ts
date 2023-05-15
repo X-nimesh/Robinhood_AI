@@ -3,7 +3,12 @@ import buttonTheme from "./button";
 
 const theme = extendTheme({
   components: {
+    fonts: {
+      heading: `'Open Sans', sans-serif`,
+      body: `'Raleway', sans-serif`,
+    },
     Text: {
+      color: "white",
       variants: {
         menu: {
           fontSize: "18px",

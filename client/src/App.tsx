@@ -10,22 +10,30 @@ import About from './pages/About'
 import Portfolio from './pages/Portfolio'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import Protected from './utils/Protected'
+import Dashboard from './pages/Dashboard'
+import NewsPage from './pages/NewsPage'
 function App() {
     const [count, setCount] = useState(0)
 
     return (
-        <Flex p="0px 40px" direction={'column'} maxWidth="99vw" bg="#0a091c" textColor={'white'} minHeight="100vh" overflow={"hidden"}>
-            <BrowserRouter>
-                <MenuBar />
+        <BrowserRouter>
+            <MenuBar />
+            <Flex p="0px 70px" direction={'column'} maxWidth="99vw" bg="#0a091c" textColor={'white'} minHeight="100vh" overflow={"hidden"}>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="about" element={<About />} />
-                    <Route path="portfolio" element={<Portfolio />} />
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<Signup />} />
+                    {/* <Protected>
+                        <Route path="/dashboard" element={<Home />} />
+                    </Protected> */}
+                    <Route path="dashboard" element={<Protected><Dashboard /></Protected>} />
+                    <Route path="portfolio" element={<Protected><Portfolio /></Protected>} />
+                    <Route path="news/:id" element={<Protected><NewsPage /></Protected>} />
                 </Routes>
-            </BrowserRouter>
-        </Flex>
+            </Flex>
+        </BrowserRouter>
 
 
     )

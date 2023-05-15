@@ -13,10 +13,10 @@ export class PortfolioEntity {
   id: number;
 
   @Column()
-  name: string;
-
-  @Column()
   desc: string;
+
+  @Column({ name: 'user_id' })
+  userId: number;
 
   @ManyToOne(() => UsersEntity, (user) => user.id)
   @JoinColumn({ name: 'user_id' })

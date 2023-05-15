@@ -31,7 +31,12 @@ export class AuthService {
         statusCode: 404,
       });
     }
-    const payload = { email: userDet.email, sub: userDet.id };
+    console.log(userDet);
+    const payload = {
+      email: userDet.email,
+      sub: userDet.id,
+      name: userDet.name,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
