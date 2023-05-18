@@ -42,6 +42,7 @@ const minimal_args = [
   '--use-gl=swiftshader',
   '--use-mock-keychain',
 ];
+import { spawn } from 'child_process';
 @Injectable()
 export class ScrapperService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
@@ -52,7 +53,7 @@ export class ScrapperService {
     if (value) {
       return value;
     }
-
+    const start = Date.now();
     const browser = await puppeteer.launch({
       headless: true,
       args: minimal_args,
@@ -82,6 +83,8 @@ export class ScrapperService {
     console.log(data);
     await browser.close();
     await this.cacheManager.set('allStocks', data, 60);
+    const end = Date.now();
+    console.log(`Execution time: ${end - start} ms`);
     return data;
   }
 
@@ -151,64 +154,88 @@ export class ScrapperService {
       },
     ];
   }
+  JS;
+  async runColabNotebook() {
+    const colabNotebookPath =
+      'https://colab.research.google.com/drive/1aCRHTjgzGZSnm4pgx24XiZfr7i_ib06u?usp=sharing';
+    const pythonProcess = spawn('jupyter', [
+      'notebook',
+      'run',
+      colabNotebookPath,
+    ]);
 
-  async scrapAlltryPrice() {
-    const value = await this.cacheManager.get('allStocks');
-    if (value) {
-      return value;
-    }
-
-    const minimalArgs = ['--no-sandbox', '--disable-setuid-sandbox'];
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: minimalArgs,
-      userDataDir: './cache',
+    pythonProcess.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
     });
-    const page = await browser.newPage();
-    await page.goto('https://merolagani.com/StockQuote.aspx');
 
-    // Extract data from first page
-    const data = await this.extractDataFromPage(page);
+    pythonProcess.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
 
-    // Click button to load page 2
-    const button2 = await page.$(
-      'input[name="ctl00$ContentPlaceHolder1$PagerControl1$btnPaging"]',
-    );
-    await page.evaluate((btn) => btn && btn.click(), button2);
-    await page.waitForNavigation();
-    const page2Data = await this.extractDataFromPage(page);
-    data.push(...page2Data);
+    pythonProcess.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+    });
 
-    // Click button to load page 3
-    const button3 = await page.$(
-      'input[name="ctl00$ContentPlaceHolder1$PagerControl1$btnPaging"]',
-    );
-    await page.evaluate((btn) => btn && btn.click(), button3);
-    await page.waitForNavigation();
-    const page3Data = await this.extractDataFromPage(page);
-    data.push(...page3Data);
-
-    await browser.close();
-    await this.cacheManager.set('allStocks', data, 60);
-    return data;
+    return 'Colab notebook execution initiated.';
   }
 
-  private async extractDataFromPage(page: puppeteer.Page): Promise<any[]> {
-    const rows = await page.$$('.table tr');
-    const data = [];
+  //   async scrapAlltryPrice() {
+  //     const value = await this.cacheManager.get('allStocks');
+  //     if (value) {
+  //       return value;
+  //     }
 
-    for (const row of rows) {
-      const cells = await row.$$('td');
-      if (cells.length > 0) {
-        const dataRow = {
-          company: await cells[1].evaluate((node) => node.innerText),
-          ltp: await cells[2].evaluate((node) => node.innerText),
-          changes: await cells[3].evaluate((node) => node.innerText),
-        };
-        data.push(dataRow);
-      }
-    }
+  //     const minimalArgs = ['--no-sandbox', '--disable-setuid-sandbox'];
+  //     const browser = await puppeteer.launch({
+  //       headless: true,
+  //       args: minimalArgs,
+  //       userDataDir: './cache',
+  //     });
+  //     const page = await browser.newPage();
+  //     await page.goto('https://merolagani.com/StockQuote.aspx');
 
-    return data;
-  }
+  //     // Extract data from first page
+  //     const data = await this.extractDataFromPage(page);
+
+  //     // Click button to load page 2
+  //     const button2 = await page.$(
+  //       'input[name="ctl00$ContentPlaceHolder1$PagerControl1$btnPaging"]',
+  //     );
+  //     await page.evaluate((btn) => btn && btn.click(), button2);
+  //     await page.waitForNavigation();
+  //     const page2Data = await this.extractDataFromPage(page);
+  //     data.push(...page2Data);
+
+  //     // Click button to load page 3
+  //     const button3 = await page.$(
+  //       'input[name="ctl00$ContentPlaceHolder1$PagerControl1$btnPaging"]',
+  //     );
+  //     await page.evaluate((btn) => btn && btn.click(), button3);
+  //     await page.waitForNavigation();
+  //     const page3Data = await this.extractDataFromPage(page);
+  //     data.push(...page3Data);
+
+  //     await browser.close();
+  //     await this.cacheManager.set('allStocks', data, 60);
+  //     return data;
+  //   }
+
+  //   private async extractDataFromPage(page: puppeteer.Page): Promise<any[]> {
+  //     const rows = await page.$$('.table tr');
+  //     const data = [];
+
+  //     for (const row of rows) {
+  //       const cells = await row.$$('td');
+  //       if (cells.length > 0) {
+  //         const dataRow = {
+  //           company: await cells[1].evaluate((node) => node.innerText),
+  //           ltp: await cells[2].evaluate((node) => node.innerText),
+  //           changes: await cells[3].evaluate((node) => node.innerText),
+  //         };
+  //         data.push(dataRow);
+  //       }
+  //     }
+
+  //     return data;
+  //   }
 }

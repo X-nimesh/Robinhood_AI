@@ -17,6 +17,7 @@ export class ScrapperController {
   }
   @Get('/test2')
   async scraptry2() {
-    return await this.scrapperService.scrapAlltryPrice();
+    return await this.scrapperService.runColabNotebook();
+    // return await this.scrapperService.scrapAlltryPrice();
   }
 }

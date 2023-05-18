@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { ScrapperModule } from './scrapper/scrapper.module';
+import { StockPriceModule } from './stock-price/stock-price.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -23,6 +24,7 @@ import * as redisStore from 'cache-manager-redis-store';
     UsersModule,
     PortfolioModule,
     ScrapperModule,
+    StockPriceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

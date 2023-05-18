@@ -77,7 +77,12 @@ async function scrapAllPrice() {
     cache.set('allStocks', data);
     return data;
 }
+var t0 = performance.now();
+
 
 scrapAllPrice()
     .then((result) => console.log(result))
     .catch((error) => console.error(error));
+
+var t1 = performance.now();
+console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");

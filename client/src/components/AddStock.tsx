@@ -19,7 +19,7 @@ import { NavLink } from 'react-router-dom';
 const AddStock = () => {
     const schema = Yup.object().shape({
         transitionType: Yup.mixed().oneOf(['buy', 'sell'], 'Invalid transition type').required('Required'),
-        stockSym: Yup.string().required('Required'),
+        // stockSym: Yup.string().required('Required'),
         quantity: Yup.number().min(0, 'higher than 0').required('Required'),
         purchaseDate: Yup.date().required('Required'),
         type: Yup.mixed().oneOf(['IPO', 'Secondary', 'FPO', 'Bonus', 'Right'], 'Invalid type').required('Required'),
@@ -27,11 +27,24 @@ const AddStock = () => {
     });
     const [errorFromServer, seterrorFromServer] = useState("");
     const toast = useToast();
+
+    // fetch stocks
+    const [stocks, setStocks] = useState([]);
+    const getStocks = async () => {
+        let stockList = await axios.get(`http://localhost:3000/stock`);
+        setStocks(stockList.data);
+    }
+    useEffect(() => {
+        getStocks();
+    }, [])
+    const [symstock, setsymstock] = useState();
+    const [searchSym, setsearchSym] = useState([]);
     const [showPassword, setShowPassword] = useState(false);
+
     const formik = useFormik({
         initialValues: {
             transitionType: '',
-            stockSym: '',
+            // stockSym: '',
             quantity: '',
             purchaseDate: '',
             type: '',
@@ -62,6 +75,23 @@ const AddStock = () => {
             }
         },
     });
+    const handelsearch = (e: any) => {
+        setsymstock(e.target.value);
+    }
+    useEffect(() => {
+        const getData = setTimeout(() => {
+            axios
+                .get(`http://localhost:3000/stock/search?query=${symstock}`)
+                .then((response) => {
+                    console.log(response.data);
+                    setsearchSym(response.data.result);
+                });
+            // console.log(symstock);
+        }, 2000)
+
+        return () => clearTimeout(getData)
+    }, [symstock])
+    console.log(symstock);
     return (
         <ModalContent background={"#000c1e"} color={"white"} height={"70vh"} borderRadius={"20px"} >
             <ModalHeader>Add New Stock</ModalHeader>
@@ -70,6 +100,7 @@ const AddStock = () => {
                 <form onSubmit={formik.handleSubmit}>
                     <Flex flexDirection={'column'} gap="50px">
                         <Flex w="100%" justifyContent={"space-between"} flexWrap={'wrap'} rowGap={'30px'}>
+
                             <Box h="60px" w='10%'>
                                 <Text as={"label"} htmlFor="transitionType" fontSize={"16px"}>Quantity</Text>
                                 <Select variant={"flushed"}
@@ -91,16 +122,27 @@ const AddStock = () => {
                                     id="stockSym"
                                     name="stockSym"
                                     type="text"
-                                    onChange={formik.handleChange}
+                                    onChange={(e) => handelsearch(e)}
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.stockSym}
+                                    value={symstock}
+                                    // value={formik.values.stockSym}
                                     _active={
                                         { transform: "scale(1.07)", }
                                     }
                                 />
-                                {formik.touched.stockSym && formik.errors.stockSym ? (
-                                    <Text textColor={"red"}>{formik.errors.stockSym}</Text>
-                                ) : null}
+                                <Flex direction={'column'} background={"black"} zIndex={2}>
+                                    <Flex direction={'column'}>
+                                        {searchSym.slice(0, 5).map((syms: any, index: number) => (
+                                            <Box key={index} onClick={() => {
+                                                console.log(syms.symbol);
+                                                setsymstock(syms.symbol)
+                                            }}>
+                                                <Text>{syms.symbol}</Text>
+                                            </Box>
+                                        ))}
+                                    </Flex>
+                                </Flex>
+
                             </Box>
                             <Box h="60px">
                                 <Text as={"label"} htmlFor="quantity" fontSize={"16px"}>Quantity</Text>
