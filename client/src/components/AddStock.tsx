@@ -16,7 +16,8 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
 
-const AddStock = () => {
+const AddStock = (props: any) => {
+    const { shareP } = props;
     const schema = Yup.object().shape({
         transitionType: Yup.mixed().oneOf(['buy', 'sell'], 'Invalid transition type').required('Required'),
         // stockSym: Yup.string().required('Required'),
@@ -37,7 +38,7 @@ const AddStock = () => {
     useEffect(() => {
         getStocks();
     }, [])
-    const [symstock, setsymstock] = useState();
+    const [symstock, setsymstock] = useState('');
     const [searchSym, setsearchSym] = useState([]);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -80,13 +81,22 @@ const AddStock = () => {
     }
     useEffect(() => {
         const getData = setTimeout(() => {
-            axios
-                .get(`http://localhost:3000/stock/search?query=${symstock}`)
-                .then((response) => {
-                    console.log(response.data);
-                    setsearchSym(response.data.result);
-                });
-            // console.log(symstock);
+            // axios
+            //     .get(`http://localhost:3000/stock/search?query=${symstock}`)
+            //     .then((response) => {
+            //         console.log(response.data);
+            //         setsearchSym(response.data.result);
+            //     });
+            // // console.log(symstock);
+            const searchString = symstock?.toLowerCase();
+            const filteredCharacters = shareP.filter(price => {
+                return (
+                    price.company.toLowerCase().includes(searchString)
+                );
+            });
+            console.log(filteredCharacters)
+            setsearchSym(filteredCharacters);
+
         }, 2000)
 
         return () => clearTimeout(getData)

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ScrapperService } from '../services/scrapper.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -17,7 +17,11 @@ export class ScrapperController {
   }
   @Get('/test2')
   async scraptry2() {
-    return await this.scrapperService.runColabNotebook();
+    return await this.scrapperService.scrapAllStock();
     // return await this.scrapperService.scrapAlltryPrice();
+  }
+  @Get('/company/:company')
+  async scrapCompany(@Param('company') company: string) {
+    return await this.scrapperService.scrapCompany(company);
   }
 }

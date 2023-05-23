@@ -1,10 +1,9 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import type { BrowserContext } from 'puppeteer';
-import { InjectContext } from 'nest-puppeteer';
+import { Inject, Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
+import { spawn } from 'child_process';
+import { ReduxService } from 'src/redux-setup/redux.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
-
 const minimal_args = [
   '--autoplay-policy=user-gesture-required',
   '--disable-background-networking',
@@ -42,50 +41,76 @@ const minimal_args = [
   '--use-gl=swiftshader',
   '--use-mock-keychain',
 ];
-import { spawn } from 'child_process';
+const browserPromise = puppeteer.launch({
+  headless: true,
+  args: minimal_args,
+  userDataDir: './cache',
+});
+
 @Injectable()
 export class ScrapperService {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  //   @Inject(CACHE_MANAGER) private cacheManager1: Cache;
+  constructor(private readonly cacheManager: ReduxService) {}
 
   async scrapAllPrice() {
-    const value = await this.cacheManager.get('allStocks');
+    const value = await this.cacheManager.get('stockPrice');
     console.log(value);
     if (value) {
       return value;
     }
-    const start = Date.now();
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: minimal_args,
-      userDataDir: './cache',
-    });
-    const page = await browser.newPage();
-    await page.goto('https://merolagani.com/StockQuote.aspx');
-    const rows = await page.$$('.table tr');
+    // const browser = await puppeteer.launch({
+    //   headless: true,
+    //   args: minimal_args,
+    //   userDataDir: './cache',
+    // });
+    const browser = await browserPromise;
+    try {
+      const start = Date.now();
+      const page = await browser.newPage();
+      await page.goto('https://merolagani.com/StockQuote.aspx');
+      const rows = await page.$$('.table tr');
+      // * backup code
+      // const data = [];
+      // for (let i = 0; i < rows.length; i++) {
+      //   const cells = await rows[i].$$('td');
+      //   let dataRow = {};
+      //   for (let j = 0; j < cells.length; j++) {
+      //     const text = await cells[j].evaluate((node) => node.innerText);
+      //   }
+      //   if (cells.length > 0) {
+      //     dataRow = {
+      //       company: await cells[1].evaluate((node) => node.innerText),
+      //       ltp: await cells[2].evaluate((node) => node.innerText),
+      //       changes: await cells[3].evaluate((node) => node.innerText),
+      //     };
 
-    const data = [];
-    for (let i = 0; i < rows.length; i++) {
-      const cells = await rows[i].$$('td');
-      let dataRow = {};
-      for (let j = 0; j < cells.length; j++) {
-        const text = await cells[j].evaluate((node) => node.innerText);
-      }
-      if (cells.length > 0) {
-        dataRow = {
-          company: await cells[1].evaluate((node) => node.innerText),
-          ltp: await cells[2].evaluate((node) => node.innerText),
-          changes: await cells[3].evaluate((node) => node.innerText),
-        };
-        data.push(dataRow);
-        console.log(dataRow);
-      }
+      //     data.push(dataRow);
+      //     console.log(dataRow);
+      //   }
+      // }
+      const data = await page.$$eval('.table tr', (rows) =>
+        rows
+          .filter((row) => row.querySelectorAll('td').length > 0)
+          .map((row) => {
+            const cells = row.querySelectorAll('td');
+            return {
+              company: cells[1]?.innerText || '',
+              ltp: cells[2]?.innerText || '',
+              changes: cells[3]?.innerText || '',
+            };
+          }),
+      );
+      console.log(data);
+      await this.cacheManager.set('stockPrice', data);
+      const end = Date.now();
+      console.log(`Execution time: ${end - start} ms`);
+      return data;
+    } catch (e) {
+      console.log(e);
+      return [];
+    } finally {
+      await browser.close();
     }
-    console.log(data);
-    await browser.close();
-    await this.cacheManager.set('allStocks', data, 60);
-    const end = Date.now();
-    console.log(`Execution time: ${end - start} ms`);
-    return data;
   }
 
   async scrapTry() {
@@ -154,7 +179,7 @@ export class ScrapperService {
       },
     ];
   }
-  JS;
+
   async runColabNotebook() {
     const colabNotebookPath =
       'https://colab.research.google.com/drive/1aCRHTjgzGZSnm4pgx24XiZfr7i_ib06u?usp=sharing';
@@ -177,6 +202,71 @@ export class ScrapperService {
     });
 
     return 'Colab notebook execution initiated.';
+  }
+  async scrapAllStock() {
+    // Assuming you have the necessary imports and setup for Puppeteer
+    const value = await this.cacheManager.get('allStock');
+    console.log(value);
+    if (value) {
+      return value;
+    }
+    try {
+      const browser = await browserPromise;
+
+      const page = await browser.newPage();
+      await page.goto('https://merolagani.com/CompanyList.aspx');
+
+      // Get all table rows from all tables with the class name 'table'
+      const rows = await page.$$('.table tr');
+
+      const data = [];
+
+      for (const row of rows) {
+        const cells = await row.$$('td');
+
+        // Check if the row has cells (to exclude empty rows)
+        if (cells.length > 0) {
+          const rowData = {
+            symbol: await cells[0].evaluate((node) => node.innerText.trim()),
+            company: await cells[1].evaluate((node) => node.innerText.trim()),
+            listed: await cells[2].evaluate((node) => node.innerText.trim()),
+          };
+
+          data.push(rowData);
+        }
+      }
+      await this.cacheManager.set('allStock', data);
+      await browser.close();
+      return data;
+    } catch (e) {
+      console.log(e);
+      return [];
+    }
+  }
+  async scrapCompany(company) {
+    const browser = await browserPromise;
+    const page = await browser.newPage();
+    const url = `https://merolagani.com/CompanyDetail.aspx?symbol=${company}`;
+    await page.goto(url);
+    const rows = await page.$$('#accordion tbody');
+    const data = [];
+    for (const row of rows) {
+      const cells = await row.$$('th');
+      const cellsData = await row.$$('td');
+
+      // Check if the row has cells (to exclude empty rows)
+      if (cells.length > 0) {
+        const rowData = {
+          key: await cells[0].evaluate((node) => node.innerText.trim()),
+          data: await cellsData[0].evaluate((node) => node.innerText.trim()),
+        };
+
+        data.push(rowData);
+      }
+    }
+    await browser.close();
+
+    return data;
   }
 
   //   async scrapAlltryPrice() {

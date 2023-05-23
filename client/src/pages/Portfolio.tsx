@@ -1,6 +1,6 @@
 
 import { Button, Divider, Flex, Select, Text, useDisclosure } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
     Table,
     Thead,
@@ -25,6 +25,7 @@ import { BiEditAlt } from "react-icons/bi";
 import { AiOutlineDelete } from 'react-icons/ai';
 import AddStock from '../components/AddStock';
 import axios from 'axios';
+import { SharePriceContext } from '../context/SharePriceContext';
 interface portfolio {
     id: number;
     desc: string;
@@ -39,6 +40,8 @@ interface stock {
     updated_at: Date;
 }
 const Portfolio = () => {
+    const { sharePrice, updateSharePrice } = useContext(SharePriceContext);
+
     const userId = localStorage.getItem("uid");
     const [portfolios, setportfolios] = useState<portfolio[]>([]);
     const [stocks, setStocks] = useState<stock[]>([]);
@@ -113,7 +116,7 @@ const Portfolio = () => {
                 <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false} isCentered motionPreset='slideInBottom' size={"5xl"} >
                     <ModalOverlay />
                     {/* <ModalContent></ModalContent> */}
-                    <AddStock />
+                    <AddStock shareP={sharePrice} />
                 </Modal>
             </Flex>
             <TableContainer>
