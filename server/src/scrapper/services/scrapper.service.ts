@@ -253,7 +253,6 @@ export class ScrapperService {
     for (const row of rows) {
       const cells = await row.$$('th');
       const cellsData = await row.$$('td');
-
       // Check if the row has cells (to exclude empty rows)
       if (cells.length > 0) {
         const rowData = {

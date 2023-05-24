@@ -96,7 +96,6 @@ const AddStock = (props: any) => {
             });
             console.log(filteredCharacters)
             setsearchSym(filteredCharacters);
-
         }, 2000)
 
         return () => clearTimeout(getData)
@@ -140,9 +139,9 @@ const AddStock = (props: any) => {
                                         { transform: "scale(1.07)", }
                                     }
                                 />
-                                <Flex direction={'column'} background={"black"} zIndex={2}>
+                                <Flex direction={'column'} background={"black"} height={"100px"} zIndex={2}>
                                     <Flex direction={'column'}>
-                                        {searchSym.slice(0, 5).map((syms: any, index: number) => (
+                                        {searchSym?.slice(0, 5).map((syms: any, index: number) => (
                                             <Box key={index} onClick={() => {
                                                 console.log(syms.symbol);
                                                 setsymstock(syms.symbol)
