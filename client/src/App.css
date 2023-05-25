@@ -1,3 +1,21 @@
 body {
-    bg: "#0a091c"
+    bg: "#0a091c",
+
+}
+
+body::-webkit-scrollbar {
+    width: 12px;
+    /* width of the entire scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+    background: #000c1ee9;
+    /* color of the tracking area */
+}
+
+body::-webkit-scrollbar-thumb {
+
+    background-color: #00CB00;
+    width: 20px;
+    border-radius: 5px;
 }

@@ -39,7 +39,7 @@ const AddStock = (props: any) => {
         getStocks();
     }, [])
     const [symstock, setsymstock] = useState('');
-    const [searchSym, setsearchSym] = useState([]);
+    const [searchSym, setsearchSym] = useState([{ symbol: "nabil" }]);
     const [showPassword, setShowPassword] = useState(false);
 
     const formik = useFormik({
@@ -81,15 +81,9 @@ const AddStock = (props: any) => {
     }
     useEffect(() => {
         const getData = setTimeout(() => {
-            // axios
-            //     .get(`http://localhost:3000/stock/search?query=${symstock}`)
-            //     .then((response) => {
-            //         console.log(response.data);
-            //         setsearchSym(response.data.result);
-            //     });
-            // // console.log(symstock);
+
             const searchString = symstock?.toLowerCase();
-            const filteredCharacters = shareP.filter(price => {
+            const filteredCharacters = shareP.filter((price: any) => {
                 return (
                     price.company.toLowerCase().includes(searchString)
                 );
@@ -139,16 +133,17 @@ const AddStock = (props: any) => {
                                         { transform: "scale(1.07)", }
                                     }
                                 />
-                                <Flex direction={'column'} background={"black"} height={"100px"} zIndex={2}>
+                                <Flex direction={'column'} background={"black"} zIndex={2}>
                                     <Flex direction={'column'}>
-                                        {searchSym?.slice(0, 5).map((syms: any, index: number) => (
+                                        {searchSym ? (<Text>hey</Text>) : (<Text>no data</Text>)}
+                                        {/* {searchSym?.slice(0, 5).map((syms: any, index: number) => (
                                             <Box key={index} onClick={() => {
                                                 console.log(syms.symbol);
                                                 setsymstock(syms.symbol)
                                             }}>
                                                 <Text>{syms.symbol}</Text>
                                             </Box>
-                                        ))}
+                                        ))} */}
                                     </Flex>
                                 </Flex>
 

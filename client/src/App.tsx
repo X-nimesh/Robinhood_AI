@@ -19,7 +19,7 @@ function App() {
     return (
         <BrowserRouter>
             <MenuBar />
-            <Flex p="0px 70px" direction={'column'} maxWidth="99vw" bg="#0a091c" textColor={'white'} minHeight="100vh" overflow={"hidden"}>
+            <Flex p="0px 70px" direction={'column'} maxWidth="100vw" bg="#0a091c" textColor={'white'} minHeight="100vh" overflow={"hidden"}>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="about" element={<About />} />
