@@ -39,7 +39,7 @@ const AddStock = (props: any) => {
         getStocks();
     }, [])
     const [symstock, setsymstock] = useState('');
-    const [searchSym, setsearchSym] = useState([{ symbol: "nabil" }]);
+    const [searchSym, setsearchSym] = useState([]);
     const [showPassword, setShowPassword] = useState(false);
 
     const formik = useFormik({
@@ -83,7 +83,7 @@ const AddStock = (props: any) => {
         const getData = setTimeout(() => {
 
             const searchString = symstock?.toLowerCase();
-            const filteredCharacters = shareP.filter((price: any) => {
+            const filteredCharacters = shareP?.filter((price: any) => {
                 return (
                     price.company.toLowerCase().includes(searchString)
                 );
@@ -133,17 +133,19 @@ const AddStock = (props: any) => {
                                         { transform: "scale(1.07)", }
                                     }
                                 />
-                                <Flex direction={'column'} background={"black"} zIndex={2}>
+                                <Flex direction={'column'} background={"white"} color={"black"} >
                                     <Flex direction={'column'}>
-                                        {searchSym ? (<Text>hey</Text>) : (<Text>no data</Text>)}
-                                        {/* {searchSym?.slice(0, 5).map((syms: any, index: number) => (
-                                            <Box key={index} onClick={() => {
-                                                console.log(syms.symbol);
-                                                setsymstock(syms.symbol)
-                                            }}>
-                                                <Text>{syms.symbol}</Text>
-                                            </Box>
-                                        ))} */}
+
+                                        {/* {searchSym?.length ? (<Text>hey</Text>) : (<Text>no data</Text>)} */}
+                                        {searchSym.slice(0, 5).map((syms: any, index: number) => {
+                                            return (
+                                                <Box key={index} onClick={() => {
+                                                    setsymstock(syms.company)
+                                                }}>
+                                                    <Text id={syms.symbol}>{syms.company}</Text>
+                                                </Box>
+                                            )
+                                        })}
                                     </Flex>
                                 </Flex>
 

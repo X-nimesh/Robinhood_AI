@@ -4,6 +4,7 @@ import { spawn } from 'child_process';
 import { ReduxService } from 'src/redux-setup/redux.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+
 const minimal_args = [
   '--autoplay-policy=user-gesture-required',
   '--disable-background-networking',
@@ -105,6 +106,103 @@ export class ScrapperService {
       const end = Date.now();
       console.log(`Execution time: ${end - start} ms`);
       return data;
+    } catch (e) {
+      console.log(e);
+      return [];
+    } finally {
+      await browser.close();
+    }
+  }
+
+  async scrapAllPriceTry() {
+    const value = await this.cacheManager.get('stockPrice');
+    console.log(value);
+    console.log('caches');
+    if (value) {
+      return value;
+    }
+    const browser = await browserPromise;
+    try {
+      const start = Date.now();
+      const page = await browser.newPage();
+      await page.goto('https://merolagani.com/StockQuote.aspx');
+
+      // Scrap first page data
+      const data = await page.$$eval('.table tr', (rows) =>
+        rows
+          .filter((row) => row.querySelectorAll('td').length > 0)
+          .map((row) => {
+            const cells = row.querySelectorAll('td');
+            return {
+              company: cells[1]?.innerText || '',
+              ltp: cells[2]?.innerText || '',
+              changes: cells[3]?.innerText || '',
+            };
+          }),
+      );
+
+      console.log('Second page');
+      // Click button to load page 2
+      await page.waitForSelector(
+        '#ctl00_ContentPlaceHolder1_PagerControl1_btnPaging',
+      );
+      await page.waitForTimeout(1000); // Add a delay of 1 second
+      await page.evaluate(() => {
+        (
+          document.querySelector(
+            '#ctl00_ContentPlaceHolder1_PagerControl1_btnPaging',
+          ) as HTMLElement
+        ).click();
+      });
+      await page.waitForNavigation();
+      // Scrap page 2 data
+      const dataPage2 = await page.$$eval('.table tr', (rows) =>
+        rows
+          .filter((row) => row.querySelectorAll('td').length > 0)
+          .map((row) => {
+            const cells = row.querySelectorAll('td');
+            return {
+              company: cells[1]?.innerText || '',
+              ltp: cells[2]?.innerText || '',
+              changes: cells[3]?.innerText || '',
+            };
+          }),
+      );
+      //   console.log('Third page');
+      // Click button to load page 3
+      //   await page.waitForSelector(
+      //     '#ctl00_ContentPlaceHolder1_PagerControl1_btnPaging',
+      //   );
+      //   await page.evaluate(() => {
+      //     (
+      //       document.querySelector(
+      //         '#ctl00_ContentPlaceHolder1_PagerControl1_btnPaging',
+      //       ) as HTMLElement
+      //     ).click();
+      //   });
+
+      //   await page.waitForNavigation();
+      //   // Scrap page 3 data
+      //   const dataPage3 = await page.$$eval('.table tr', (rows) =>
+      //     rows
+      //       .filter((row) => row.querySelectorAll('td').length > 0)
+      //       .map((row) => {
+      //         const cells = row.querySelectorAll('td');
+      //         return {
+      //           company: cells[1]?.innerText || '',
+      //           ltp: cells[2]?.innerText || '',
+      //           changes: cells[3]?.innerText || '',
+      //         };
+      //       }),
+      //   );
+      console.log('Combine');
+
+      const allData = [...data, ...dataPage2];
+      console.log(allData);
+      await this.cacheManager.set('stockPrice', allData);
+      const end = Date.now();
+      console.log(`Execution time: ${end - start} ms`);
+      return allData;
     } catch (e) {
       console.log(e);
       return [];

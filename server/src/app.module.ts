@@ -12,6 +12,7 @@ import { redisStore } from 'cache-manager-redis-store';
 import { ReduxSetupModule } from './redux-setup/redux-setup.module';
 import { ReduxService } from './redux-setup/redux.service';
 import { ConfigService } from '@nestjs/config';
+import { PredictModule } from './predict/predict.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigService } from '@nestjs/config';
     PortfolioModule,
     ScrapperModule,
     StockPriceModule,
+    PredictModule,
   ],
   controllers: [AppController],
   providers: [AppService],

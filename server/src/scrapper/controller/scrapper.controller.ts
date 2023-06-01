@@ -9,7 +9,7 @@ export class ScrapperController {
 
   @Get()
   async scrap() {
-    return await this.scrapperService.scrapAllPrice();
+    return await this.scrapperService.scrapAllPriceTry();
   }
   @Get('/test')
   async scraptry() {
