@@ -4,6 +4,7 @@ export const SharePriceContext = createContext<any>(null);
 
 const SharePriceProvider: React.FC<any> = ({ children }) => {
     const [sharePrice, setsharePrice] = useState();
+    const [stockList, setstockList] = useState();
     const [news, setnews] = useState()
     const updateSharePrice = (value: any) => {
         setsharePrice(value);
@@ -12,7 +13,11 @@ const SharePriceProvider: React.FC<any> = ({ children }) => {
         setnews(value);
     };
     return (
-        <SharePriceContext.Provider value={{ sharePrice, updateSharePrice, news, updateNews }}>
+        <SharePriceContext.Provider value={{
+            sharePrice, updateSharePrice,
+            news, updateNews,
+            stockList, setstockList
+        }}>
             {children}
         </SharePriceContext.Provider>
     )

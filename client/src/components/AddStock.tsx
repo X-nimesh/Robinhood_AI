@@ -9,14 +9,17 @@ import {
     Select,
 } from '@chakra-ui/react'
 import { Flex, Text, Image, ModalContent, Box, Input, Button, InputRightElement, IconButton, InputGroup } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Formik, Form, Field, ErrorMessage, useFormik } from 'formik';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
+import { SharePriceContext } from '../context/SharePriceContext';
 
 const AddStock = (props: any) => {
+    const { sharePrice, updateSharePrice, stockList, setstockList } = useContext(SharePriceContext);
+
     const { shareP } = props;
     const schema = Yup.object().shape({
         transitionType: Yup.mixed().oneOf(['buy', 'sell'], 'Invalid transition type').required('Required'),
@@ -28,13 +31,21 @@ const AddStock = (props: any) => {
     });
     const [errorFromServer, seterrorFromServer] = useState("");
     const toast = useToast();
+    const getStockList = async () => {
+        let allStockLists = await axios.get('http://localhost:3000/stocks');
+        setstockList(allStockLists);
+    }
 
+    useEffect(() => {
+        getStockList()
+    }, [])
     // fetch stocks
     const [stocks, setStocks] = useState([]);
     const getStocks = async () => {
-        let stockList = await axios.get(`http://localhost:3000/stock`);
+        let stockList = await axios.get(`http://localhost:3000/stocks`);
         setStocks(stockList.data);
     }
+
     useEffect(() => {
         getStocks();
     }, [])
@@ -80,12 +91,12 @@ const AddStock = (props: any) => {
         setsymstock(e.target.value);
     }
     useEffect(() => {
-        const getData = setTimeout(() => {
+        const getData = setTimeout(async () => {
 
             const searchString = symstock?.toLowerCase();
-            const filteredCharacters = shareP?.filter((price: any) => {
+            const filteredCharacters = stocks?.filter((price: any) => {
                 return (
-                    price.company.toLowerCase().includes(searchString)
+                    price.symbol.toLowerCase().includes(searchString)
                 );
             });
             console.log(filteredCharacters)
@@ -137,7 +148,7 @@ const AddStock = (props: any) => {
                                     <Flex direction={'column'}>
 
                                         {/* {searchSym?.length ? (<Text>hey</Text>) : (<Text>no data</Text>)} */}
-                                        {searchSym.slice(0, 5).map((syms: any, index: number) => {
+                                        {searchSym?.slice(0, 5).map((syms: any, index: number) => {
                                             return (
                                                 <Box key={index} onClick={() => {
                                                     setsymstock(syms.company)

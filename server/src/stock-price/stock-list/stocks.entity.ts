@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SectorEntity } from './sectors.entity';
+import { SectorEntity } from '../model/sectors.entity';
 
 @Entity({ name: 'stocks' })
 export class StocksEntity {

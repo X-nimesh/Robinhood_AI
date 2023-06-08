@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/X-nimesh/Robinhood_AI#readme",
   "dependencies": {
+    "@tensorflow/tfjs-node": "^4.6.0",
     "concurrently": "^8.0.1",
     "node-fetch": "^3.3.1"
   },

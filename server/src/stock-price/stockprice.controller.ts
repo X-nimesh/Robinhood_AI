@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Stock Price')
 @ApiBearerAuth()
-@Controller('stock')
+@Controller('stockprice')
 export class StockpriceController {
   constructor(private readonly stockpriceService: StockpriceService) {}
   @Get()

@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Injectable, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { ReduxService } from './redux-setup/redux.service';
+import { ReduxService } from './redis-setup/redis.service';
 
 @Injectable()
 export class AppService {

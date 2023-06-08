@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import { spawn } from 'child_process';
-import { ReduxService } from 'src/redux-setup/redux.service';
+import { ReduxService } from 'src/redis-setup/redis.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -126,7 +126,6 @@ export class ScrapperService {
       const start = Date.now();
       const page = await browser.newPage();
       await page.goto('https://merolagani.com/StockQuote.aspx');
-
       // Scrap first page data
       const data = await page.$$eval('.table tr', (rows) =>
         rows
@@ -140,12 +139,12 @@ export class ScrapperService {
             };
           }),
       );
-
       console.log('Second page');
       // Click button to load page 2
       await page.waitForSelector(
         '#ctl00_ContentPlaceHolder1_PagerControl1_btnPaging',
       );
+
       await page.waitForTimeout(1000); // Add a delay of 1 second
       await page.evaluate(() => {
         (

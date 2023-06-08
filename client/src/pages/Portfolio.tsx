@@ -40,7 +40,7 @@ interface stock {
     updated_at: Date;
 }
 const Portfolio = () => {
-    const { sharePrice, updateSharePrice } = useContext(SharePriceContext);
+    const { sharePrice, updateSharePrice, stockList, setstockList } = useContext(SharePriceContext);
 
     const userId = localStorage.getItem("uid");
     const [portfolios, setportfolios] = useState<portfolio[]>([]);
@@ -57,13 +57,9 @@ const Portfolio = () => {
     const getportfolios = async () => {
         let portfolioList = await axios.get(`http://localhost:3000/portfolio/user/${userId}`);
         setportfolios(portfolioList.data);
-        // console.log(portfolioList.data);
-        // console.log(portfolioList.data[0].id);
         handlePortfolioChange(portfolioList.data[0].id)
     }
-    useEffect(() => {
-        getportfolios()
-    }, [])
+
     const handlePortfolioChange = async (pid: string) => {
         // console.log(e.target.value);
         let stocks = await axios.get(`http://localhost:3000/portfolio/${pid}`);
