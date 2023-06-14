@@ -1,26 +1,15 @@
-import {
-    Modal,
-    ModalOverlay,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    useToast,
-    Select,
-} from '@chakra-ui/react'
-import { Flex, Text, Image, ModalContent, Box, Input, Button, InputRightElement, IconButton, InputGroup } from '@chakra-ui/react'
-import React, { useContext, useEffect, useState } from 'react'
-import { Formik, Form, Field, ErrorMessage, useFormik } from 'formik';
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-import * as Yup from 'yup';
+import { Box, Input, ModalBody, ModalCloseButton, ModalContent, ModalHeader, Select, Text, Flex, useToast, Button } from '@chakra-ui/react'
 import axios from 'axios';
-import { NavLink } from 'react-router-dom';
-import { SharePriceContext } from '../context/SharePriceContext';
+import { useFormik } from 'formik';
+import React, { useState } from 'react'
+import * as Yup from 'yup';
 
-const AddStock = (props: any) => {
-    const { sharePrice, updateSharePrice, stockList, setstockList } = useContext(SharePriceContext);
 
-    const { shareP, portfolioId, onClose } = props;
+const AddStockPopu = (props: any) => {
+    const toast = useToast();
+    const [errorFromServer, seterrorFromServer] = useState("");
+    const [symstock, setsymstock] = useState('');
+    const [searchSym, setsearchSym] = useState([]);
     const schema = Yup.object().shape({
         transitionType: Yup.mixed().oneOf(['buy', 'sell'], 'Invalid transition type').required('Required'),
         // stockSym: Yup.string().required('Required'),
@@ -29,34 +18,10 @@ const AddStock = (props: any) => {
         type: Yup.mixed().oneOf(['IPO', 'Secondary', 'FPO', 'Bonus', 'Right'], 'Invalid type').required('Required'),
         purchasePrice: Yup.number().min(0, 'higher than 0').required('Required'),
     });
-    const [errorFromServer, seterrorFromServer] = useState("");
-    const toast = useToast();
-    const getStockList = async () => {
-        let allStockLists = await axios.get('http://localhost:3000/stocks');
-        setstockList(allStockLists);
-    }
-
-    useEffect(() => {
-        getStockList()
-    }, [])
-    // fetch stocks
-    const [stocks, setStocks] = useState([]);
-    const getStocks = async () => {
-        let stockList = await axios.get(`http://localhost:3000/stocks`);
-        setStocks(stockList.data);
-    }
-
-    useEffect(() => {
-        getStocks();
-    }, [])
-    const [symstock, setsymstock] = useState('');
-    const [searchSym, setsearchSym] = useState([]);
-    const [showPassword, setShowPassword] = useState(false);
-
     const formik = useFormik({
         initialValues: {
             transitionType: '',
-            stockSymId: 0,
+            // stockSym: '',
             quantity: '',
             purchaseDate: '',
             type: '',
@@ -65,11 +30,9 @@ const AddStock = (props: any) => {
         validationSchema: schema,
         onSubmit: async (values) => {
             try {
-                console.log(values)
                 console.log("submit");
-                const data = await axios.post(`http://localhost:3000/portfolio/stock/add/${portfolioId}`, values);
+                const data = await axios.get("http://localhost:3000/portfolio/1", {});
                 console.log(data);
-                onClose();
                 // localStorage.setItem('access_token', data.data.access_token);
                 // toast({
                 //     title: "Stock added successfully.",
@@ -92,29 +55,6 @@ const AddStock = (props: any) => {
     const handelsearch = (e: any) => {
         setsymstock(e.target.value);
     }
-    useEffect(() => {
-        const getData = setTimeout(async () => {
-
-            const searchString = symstock?.toLowerCase();
-            const filteredCharacters = stocks?.filter((price: any) => {
-                return (
-                    price.symbol.toLowerCase().includes(searchString)
-                );
-            });
-
-            //* to get stock name up in debentures case
-            console.log(filteredCharacters.reverse())
-            setsearchSym(filteredCharacters);
-        }, 1000)
-
-        return () => clearTimeout(getData)
-    }, [symstock])
-    const handleClickoption = (stockName: string, stockId: number) => {
-        formik.values.stockSymId = stockId;
-        setsymstock(stockName)
-        setsearchSym([]);
-        console.log(stockName, stockId)
-    }
     return (
         <ModalContent background={"#000c1e"} color={"white"} height={"70vh"} borderRadius={"20px"} >
             <ModalHeader>Add New Stock</ModalHeader>
@@ -131,11 +71,7 @@ const AddStock = (props: any) => {
                                     name="transitionType"
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    value={formik.values.transitionType}
-                                    placeholder='Select'
-
-                                // defaultValue={}
-                                >
+                                    value={formik.values.transitionType}>
                                     <option value='buy' style={{ background: "black" }}>buy</option>
                                     <option value='sell' style={{ background: "black" }}>sell</option>
                                 </Select>
@@ -143,47 +79,30 @@ const AddStock = (props: any) => {
                                     <Text textColor={"red"}>{formik.errors.transitionType}</Text>
                                 ) : null}
                             </Box>
-                            <Box
-                                h="60px"
-                            // onBlur={() => {
-                            //     setsearchSym([]);
-                            //     console.log("changes focus")
-                            // }}
-                            >
+                            <Box h="60px">
                                 <Text as={"label"} htmlFor="stockSym" fontSize={"16px"}>Stock Name(symbol)</Text>
                                 <Input
                                     id="stockSym"
                                     name="stockSym"
                                     type="text"
                                     onChange={(e) => handelsearch(e)}
-                                    // onBlur={formik.handleBlur}
-                                    // onBlur={() => { formik.handleBlur; setsearchSym([]); }}
+                                    onBlur={formik.handleBlur}
                                     value={symstock}
                                     // value={formik.values.stockSym}
                                     _active={
                                         { transform: "scale(1.07)", }
                                     }
                                 />
-                                <Flex direction={'column'} background={"white"} color={"black"}>
+                                <Flex direction={'column'} background={"white"} color={"black"} >
                                     <Flex direction={'column'}>
-                                        {/* {searchSym?.map((sym: any, index) => {
-                                            console.log(sym)
-                                            if (index > 2) {
-                                                return;
-                                            }
-                                            return (
 
-                                                <Text id={sym.symbol}>{sym.company}</Text>
-                                            )
-                                        })} */}
                                         {/* {searchSym?.length ? (<Text>hey</Text>) : (<Text>no data</Text>)} */}
-                                        {searchSym?.slice(0, 3).map((syms: any, index: number) => {
+                                        {searchSym?.slice(0, 5).map((syms: any, index: number) => {
                                             return (
                                                 <Box key={index} onClick={() => {
-                                                    handleClickoption(syms.stockName, syms.id)
-                                                    // setsymstock(syms.stockName)
+                                                    setsymstock(syms.company)
                                                 }}>
-                                                    <Text id={syms.symbol}>{syms.stockName}</Text>
+                                                    <Text id={syms.symbol}>{syms.company}</Text>
                                                 </Box>
                                             )
                                         })}
@@ -233,7 +152,6 @@ const AddStock = (props: any) => {
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
                                     value={formik.values.type}
-                                    placeholder='Select'
                                 >
                                     <option value='IPO' style={{ background: "black" }} >IPO</option>
                                     <option value='Secondary' style={{ background: "black" }}>Secondary</option>
@@ -267,10 +185,10 @@ const AddStock = (props: any) => {
                         <Button type="submit" variant={"Login"}>Add stock</Button>
                     </Flex>
                 </form>
-            </ModalBody >
+            </ModalBody>
+        </ModalContent>
 
-        </ModalContent >
     )
 }
 
-export default AddStock
+export default AddStockPopu

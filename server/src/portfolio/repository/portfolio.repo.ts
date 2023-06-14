@@ -23,4 +23,24 @@ export class PortfolioRepo {
       portfolioID: pid,
     });
   }
+  async addStock(
+    portfolioID,
+    stockID,
+    quantity,
+    purchase_price,
+    purchase_date,
+  ) {
+    const date = new Date();
+    const created = this.portfolioStockEnity.create({
+      portfolioID,
+      stockID,
+      quantity,
+      purchase_price,
+      purchase_date,
+      created_at: date,
+      updated_at: date,
+    });
+
+    return this.portfolioStockEnity.save(created);
+  }
 }

@@ -42,15 +42,11 @@ const minimal_args = [
   '--use-gl=swiftshader',
   '--use-mock-keychain',
 ];
-const browserPromise = puppeteer.launch({
-  headless: true,
-  args: minimal_args,
-  userDataDir: './cache',
-});
 
 @Injectable()
 export class ScrapperService {
   //   @Inject(CACHE_MANAGER) private cacheManager1: Cache;
+
   constructor(private readonly cacheManager: ReduxService) {}
 
   async scrapAllPrice() {
@@ -64,6 +60,11 @@ export class ScrapperService {
     //   args: minimal_args,
     //   userDataDir: './cache',
     // });
+    const browserPromise = puppeteer.launch({
+      headless: true,
+      args: minimal_args,
+      userDataDir: './cache',
+    });
     const browser = await browserPromise;
     try {
       const start = Date.now();
@@ -121,6 +122,11 @@ export class ScrapperService {
     if (value) {
       return value;
     }
+    const browserPromise = puppeteer.launch({
+      headless: true,
+      args: minimal_args,
+      userDataDir: './cache',
+    });
     const browser = await browserPromise;
     try {
       const start = Date.now();
@@ -308,6 +314,11 @@ export class ScrapperService {
       return value;
     }
     try {
+      const browserPromise = puppeteer.launch({
+        headless: true,
+        args: minimal_args,
+        userDataDir: './cache',
+      });
       const browser = await browserPromise;
 
       const page = await browser.newPage();
@@ -341,6 +352,11 @@ export class ScrapperService {
     }
   }
   async scrapCompany(company) {
+    const browserPromise = puppeteer.launch({
+      headless: true,
+      args: minimal_args,
+      userDataDir: './cache',
+    });
     const browser = await browserPromise;
     const page = await browser.newPage();
     const url = `https://merolagani.com/CompanyDetail.aspx?symbol=${company}`;

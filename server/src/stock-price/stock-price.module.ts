@@ -12,5 +12,6 @@ import { StocksRepo } from './stock-list/stocks.repo';
   imports: [TypeOrmModule.forFeature([StocksEntity, SectorEntity])],
   controllers: [StockpriceController, StocksController],
   providers: [StockpriceService, StocksService, StocksRepo],
+  exports: [StocksRepo],
 })
 export class StockPriceModule {}

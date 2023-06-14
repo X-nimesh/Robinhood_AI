@@ -1,7 +1,7 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { SharePriceContext } from '../context/SharePriceContext';
 import axios from 'axios';
-import { Box, Flex, Image, Text } from '@chakra-ui/react';
+import { Box, Center, Divider, Flex, Image, Text } from '@chakra-ui/react';
 import {
     Table,
     Thead,
@@ -16,21 +16,17 @@ import {
 import { Spinner } from '@chakra-ui/react'
 import { BsArrowDownCircleFill, BsFillArrowUpCircleFill } from 'react-icons/bs';
 import News from '../components/News';
+import DetailedStockPrice from '../components/DetailedStockPrice';
 const Dashboard = () => {
     const { sharePrice, updateSharePrice } = useContext(SharePriceContext);
-    useEffect(() => {
-        getPrices();
-    }, [])
-    const getPrices = async () => {
-        const prices = await axios.get("http://localhost:3000/scrap")
-        updateSharePrice(prices.data)
-    }
+    const [spinner, setspinner] = useState(true);
+
     return (
         <Flex flexDirection={'column'} gap="20px" marginTop={"80px"} >
             {/* table to show sshare marketi priice */}
             <Flex justifyContent={"flex-start"} gap={"100px"}>
                 <Image src="/coverPhoto.svg" alt="COver" w="50vw" h='100%' marginTop={"200px"} />
-                <TableContainer mt={"10px"} w='55vw' minW="400px" height={"100vh"} overflowY={'scroll'}
+                <TableContainer mt={"30px"} w='55vw' minW="400px" height={"80vh"} overflowY={'scroll'}
                     sx={{
                         '&::-webkit-scrollbar': {
                             width: '8px',
@@ -54,18 +50,17 @@ const Dashboard = () => {
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {sharePrice?.length === 0 && <Spinner />
-                            }
+
 
                             {sharePrice && sharePrice.map((share: any, key: any) => {
                                 return (
                                     <Tr key={key}>
-                                        <Td textColor={"white"}>{share.company}</Td>
-                                        <Td isNumeric textColor={"white"}>{share.ltp}</Td>
-                                        <Td isNumeric textColor={"white"} color={share.changes > 0 ? "green.300" : "red.600"}>
-                                            <Flex gap={"15px"}>
-                                                {share.changes}
-                                                {share.changes > 0 ? <BsFillArrowUpCircleFill /> : <BsArrowDownCircleFill />}
+                                        <Td textColor={"white"}>{share.stockSymbol}</Td>
+                                        <Td isNumeric textColor={"white"}>{share.closingPrice}</Td>
+                                        <Td isNumeric textColor={"white"} color={share.percentChange > 0 ? "green.300" : "red.600"}>
+                                            <Flex gap={"15px"} justifyContent={'flex-end'}>
+                                                {share.percentChange}
+                                                {share.percentChange > 0 ? <BsFillArrowUpCircleFill /> : <BsArrowDownCircleFill />}
                                             </Flex>
                                         </Td>
                                     </Tr>
@@ -74,8 +69,13 @@ const Dashboard = () => {
 
                         </Tbody>
                     </Table>
+                    <Flex mt="50px" w='100%' alignItems={'center'} paddingX={'20px'} justifyContent={'center'}>
+                        {spinner && <Spinner size={'lg'} />}
+                    </Flex>
                 </TableContainer>
             </Flex>
+            <Divider h='10px' color={'green'} />
+            <DetailedStockPrice sharePrice={sharePrice} />
             <News />
         </Flex >
     )

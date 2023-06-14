@@ -10,4 +10,10 @@ export class StocksRepo {
   async getAll() {
     return this.stocksentity.find();
   }
+  async getOnebyId(id: number): Promise<StocksEntity> {
+    return this.stocksentity.findOne({
+      where: { id },
+      select: ['stockName', 'symbol', 'id'],
+    });
+  }
 }

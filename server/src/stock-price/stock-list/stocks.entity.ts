@@ -3,9 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { SectorEntity } from '../model/sectors.entity';
+import { PortfolioStocksEntity } from 'src/portfolio/model/portfolioStocks.entity';
 
 @Entity({ name: 'stocks' })
 export class StocksEntity {
@@ -17,6 +19,9 @@ export class StocksEntity {
 
   @Column({ name: 'stock_symbol' })
   symbol: string;
+
+  @OneToMany(() => PortfolioStocksEntity, (portfolio) => portfolio.stockID)
+  portfolio: PortfolioStocksEntity[];
 
   @Column({ name: 'sector_id' })
   Sector: number;

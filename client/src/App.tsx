@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -13,9 +13,19 @@ import Signup from './pages/Signup'
 import Protected from './utils/Protected'
 import Dashboard from './pages/Dashboard'
 import NewsPage from './pages/NewsPage'
+import { SharePriceContext } from './context/SharePriceContext'
+import axios from 'axios'
 function App() {
-    const [count, setCount] = useState(0)
+    const { sharePrice, updateSharePrice } = useContext(SharePriceContext);
 
+    const [count, setCount] = useState(0)
+    useEffect(() => {
+        getPrices();
+    }, [])
+    const getPrices = async () => {
+        const prices = await axios.get("http://localhost:3000/stocks/live")
+        updateSharePrice(prices.data.result.stocks)
+    }
     return (
         <BrowserRouter>
             <MenuBar />

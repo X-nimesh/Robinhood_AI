@@ -6,9 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PortfolioEntity } from './model/portfolio.entity';
 import { PortfolioStocksEntity } from './model/portfolioStocks.entity';
 import { PortfolioRepo } from './repository/portfolio.repo';
+import { StocksRepo } from 'src/stock-price/stock-list/stocks.repo';
+import { StockPriceModule } from 'src/stock-price/stock-price.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PortfolioEntity, PortfolioStocksEntity])],
+  imports: [
+    TypeOrmModule.forFeature([PortfolioEntity, PortfolioStocksEntity]),
+    StockPriceModule,
+  ],
   providers: [PortfolioService, PortfolioRepo],
   controllers: [PortfolioController],
 })
