@@ -5,6 +5,8 @@ import { PortfolioRepo } from '../repository/portfolio.repo';
 import { StocksRepo } from 'src/stock-price/stock-list/stocks.repo';
 import { addStockDto } from '../portfolioStocks.dto';
 import { TranscactionType } from '../portfolio.enum';
+import axios from 'axios';
+import { parse } from 'path';
 
 @Injectable()
 export class PortfolioService {
@@ -38,9 +40,8 @@ export class PortfolioService {
   //     console.log(items);
   //     return items;
   //   }
-  async getPortfoliosByID(pid: number) {
+  async getPortfoliosItemsByID(pid: number) {
     const portfolioItems = await this.portfolioRepo.getPortfolioDetByID(pid);
-
     // * array of promis to resolve from Promise.all method
     const stockPromises = portfolioItems.map((data) =>
       this.stocksRepo.getOnebyId(data.stockID),
@@ -69,5 +70,54 @@ export class PortfolioService {
       data.purchasePrice,
       data.purchaseDate,
     );
+  }
+  //   funstion to calculate rsi
+  rsifromClosingPrice(closePrices) {
+    const prices = closePrices.map(Number).reverse();
+    const days = 14;
+    let sumGain = 0;
+    let sumLoss = 0;
+
+    for (let i = 1; i < closePrices.length; i++) {
+      if (i > days) break;
+      const difference = prices[i] - prices[i - 1];
+
+      if (difference >= 0) {
+        sumGain += difference;
+      } else {
+        sumLoss -= difference;
+      }
+      console.log(difference);
+      console.log('loss:-' + sumLoss);
+    }
+    if (sumGain === 0) return 0;
+    if (Math.abs(sumLoss) < Number.EPSILON) return 100;
+
+    const relativeStrength = sumGain / sumLoss;
+
+    const rsi = 100.0 - 100.0 / (1 + relativeStrength);
+    return rsi;
+  }
+  async calculateRSI(symbolId: string) {
+    const stockData = await this.stocksRepo.getOnebyId(parseInt(symbolId));
+    const symbol = stockData?.symbol;
+    // bring the todays date and 14 day ago time in epoch timestamp
+    const today = new Date();
+    const fourteenDaysAgo = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 30,
+    );
+
+    const todayEpoch = Math.floor(today.getTime() / 1000);
+    const fourteenDaysAgoEpoch = Math.floor(fourteenDaysAgo.getTime() / 1000);
+    const url = `https://nepsealpha.com/trading/0/history?symbol=${symbol}&resolution=1D&from=${fourteenDaysAgoEpoch}&to=${todayEpoch}`;
+    const data = await axios.get(url);
+    if (data.data.s === 'no_data') return { message: 'no data found' };
+    const closePrice = data.data.c;
+    const rsi = this.rsifromClosingPrice(closePrice);
+
+    console.log(rsi);
+    return { stockName: stockData.stockName, symbol: stockData.symbol, rsi };
   }
 }

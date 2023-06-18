@@ -15,6 +15,7 @@ import Dashboard from './pages/Dashboard'
 import NewsPage from './pages/NewsPage'
 import { SharePriceContext } from './context/SharePriceContext'
 import axios from 'axios'
+import StockDetailsPage from './pages/StockDetailsPage'
 function App() {
     const { sharePrice, updateSharePrice } = useContext(SharePriceContext);
 
@@ -29,7 +30,8 @@ function App() {
     return (
         <BrowserRouter>
             <MenuBar />
-            <Flex p="0px 70px" direction={'column'} maxWidth="100vw" bg="#0a091c" textColor={'white'} minHeight="100vh" overflow={"hidden"}>
+            <Flex p="0px 70px" direction={'column'} maxWidth="100vw" bg="#0a091c"
+                textColor={'white'} minHeight="100vh" overflow={"hidden"}>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="about" element={<About />} />
@@ -41,6 +43,8 @@ function App() {
                     <Route path="dashboard" element={<Protected><Dashboard /></Protected>} />
                     <Route path="portfolio" element={<Protected><Portfolio /></Protected>} />
                     <Route path="news/:id" element={<Protected><NewsPage /></Protected>} />
+                    <Route path="stocks/:id" element={<Protected><StockDetailsPage /></Protected>} />
+
                 </Routes>
             </Flex>
         </BrowserRouter>

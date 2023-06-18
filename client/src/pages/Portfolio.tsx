@@ -26,6 +26,7 @@ import { AiOutlineDelete } from 'react-icons/ai';
 import AddStock from '../components/AddStock';
 import axios from 'axios';
 import { SharePriceContext } from '../context/SharePriceContext';
+import { useNavigate } from 'react-router-dom';
 interface portfolio {
     id: number;
     desc: string;
@@ -53,8 +54,8 @@ interface Stock {
 }
 
 const Portfolio = () => {
+    const navigate = useNavigate();
     const { sharePrice, updateSharePrice, stockList, setstockList } = useContext(SharePriceContext);
-    console.log(sharePrice)
     const userId = localStorage.getItem("uid");
     const [portfolios, setportfolios] = useState<portfolio[]>([]);
     const [stocks, setStocks] = useState<Stock[]>([]);
@@ -91,42 +92,39 @@ const Portfolio = () => {
     const getportfolios = async () => {
         let portfolioList = await axios.get(`http://localhost:3000/portfolio/user/${userId}`);
         // let trialData = await axios.get('https://nepsealpha.com/trading/1/search?limit=500');
-        // console.log(trialData);
         setportfolios(portfolioList.data);
-        console.log(portfolioList.data)
         handlePortfolioChange(portfolioList.data[0].id)
     }
 
     const handlePortfolioChange = async (pid: string) => {
         setportfolioId(parseInt(pid));
         let stocks = await axios.get(`http://localhost:3000/portfolio/${pid}`);
-        console.log(stocks.data);
         let investmentVal = 0;
         stocks?.data?.forEach((stock: any) => {
             investmentVal += stock.purchase_price * stock.quantity;
         })
         setportfolioDet((port) => ({ ...port, investmentVal }));
         const combined = addStocks(stocks.data)
-        setStocks(combined);
+        let stockWithRsi = await Promise.all(combined.map(async (stock: any) => {
+            const rsi = await axios.get(`http://localhost:3000/portfolio/rsi?symbol=${stock.stockID}`);
+            return { ...stock, rsi: rsi.data.rsi }
+        }))
+        setStocks(stockWithRsi);
     }
     const numberWithCommas = (x: any) => {
         // const num = x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         const num = x.toLocaleString('en-IN')
-        console.log(num);
         return num;
     }
     useEffect(() => {
         getportfolios()
     }, [])
     const findLtp = (ltp: string) => {
-
         const foundStock = sharePrice?.find((stock: any) => stock.stockSymbol === ltp);
-        console.log(foundStock)
         return foundStock?.closingPrice;
     }
     return (
-        <Flex flexDirection={"column"}>
-            <Text fontSize={"5xl"} _hover={{ color: "blue.300" }} w="fit-content" transition={"ease-in-out .3s"}>Portfolio</Text>
+        <Flex flexDirection={"column"} marginTop={'70px'}>
             <Flex gap="20px" marginTop={"40px"}>
                 <Flex flexDirection={"column"} p="40px" background={"green.700"} w="20%" minW="300px" borderRadius={"30px"} gap="20px">
                     <Text fontSize={"xl"}>Portfolio Value:</Text>
@@ -159,7 +157,6 @@ const Portfolio = () => {
                         onChange={(e) => handlePortfolioChange(e.target.value)}
                     >
                         {portfolios.map((port, key) => {
-                            console.log(port)
                             return (
                                 <option value={port.id} style={{ background: "black" }} key={key}>{port.desc}</option>
                             )
@@ -181,11 +178,11 @@ const Portfolio = () => {
                             <Th>Stock Name</Th>
                             <Th isNumeric>LTP</Th>
                             <Th isNumeric>Qty</Th>
+                            <Th>Risk(RSI)</Th>
                             <Th isNumeric>Purchased price</Th>
                             <Th isNumeric>Purchased on(Total):</Th>
                             <Th isNumeric>Market value</Th>
                             <Th isNumeric>Total Profit</Th>
-                            <Th>Risk</Th>
                             <Th>Actions</Th>
                         </Tr>
                     </Thead>
@@ -212,22 +209,32 @@ const Portfolio = () => {
                             const marketVal = ltp * data.quantity;
                             let total = portfolioDet.portfolioValue + marketVal;
                             const profit = marketVal - purchasedValue;
-                            console.log(profit)
                             const per: number = profit / purchasedValue;
+                            let risk = "Normal";
+                            if (data.rsi > 70) {
+                                risk = "High"
+                            }
+                            else if (data.rsi < 30) {
+                                risk = "Low"
+                            }
+
                             return (
                                 <Tr key={index}>
-                                    <Tooltip label={data.stockName} aria-label='A tooltip'>
-                                        <Td maxWidth={'200px'} overflow={'clip'} overflowWrap={'break-word'}><Text  >
-                                            {data.symbol}
-                                        </Text></Td>
+                                    <Tooltip label={data.stockName} aria-label='A tooltip' >
+                                        <Td maxWidth={'200px'} overflow={'clip'} overflowWrap={'break-word'}
+                                            onClick={() => navigate(`/stocks/${data.id}`)}>
+                                            <Text>
+                                                {data.symbol}
+                                            </Text>
+                                        </Td>
                                     </Tooltip>
                                     <Td isNumeric>{ltp}</Td>
                                     <Td isNumeric>{data.quantity}</Td>
+                                    <Td color={risk === "High" ? '#e53c3c' : risk === "Low" && '#00bf49'}>{risk}({data.rsi.toFixed(2)})</Td>
                                     <Td isNumeric>{data.purchase_price}</Td>
                                     <Td isNumeric>Rs. {numberWithCommas(purchasedValue)}</Td>
                                     <Td isNumeric>Rs.{numberWithCommas(marketVal)}</Td>
                                     <Td isNumeric color={per < 0 ? '#e53c3c' : '#00bf49'}>{`${per.toFixed(2)}`}% ({`Rs. ${numberWithCommas(profit)}`})</Td>
-                                    <Td >Medium</Td>
                                     <Td >
                                         <Flex gap="20px">
                                             <BiEditAlt onClick={editClick} />

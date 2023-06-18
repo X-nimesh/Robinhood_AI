@@ -13,4 +13,7 @@ export class StocksService {
     // return json;
     return this.stockRepo.getAll();
   }
+  async getOneStock(id: number) {
+    return this.stockRepo.getOnebyId(id);
+  }
 }
