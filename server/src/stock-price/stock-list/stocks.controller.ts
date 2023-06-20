@@ -18,7 +18,6 @@ export class StocksController {
     // );
     // console.log(liveData);
     // return liveData;
-
     return json;
   }
   @Get('/')
@@ -28,5 +27,20 @@ export class StocksController {
   @Get('/:id')
   async getOneStock(@Param('id') id: string) {
     return this.stockService.getOneStock(parseInt(id));
+  }
+  @Get('/companyDetails/:id')
+  async getCompanyDetails(@Param('id') id: string) {
+    const stock = await this.getOneStock(id);
+    const companyDetails = await axios.get('/');
+    return companyDetails.data;
+  }
+
+  @Get('/company/:id')
+  async getCompanyStock(@Param('id') id: string) {
+    const stock = await this.getOneStock(id);
+    const stockPrice = await axios.get(
+      `https://nepsealpha.com/trading/0/history?symbol=${stock?.symbol}&resolution=1D&from=1685556900&to=1686800395&pass=ok&force=0.9015580012767925&currencyCode=NRS`,
+    );
+    return stockPrice.data;
   }
 }

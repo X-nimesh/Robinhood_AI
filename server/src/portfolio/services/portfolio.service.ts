@@ -43,12 +43,12 @@ export class PortfolioService {
   async getPortfoliosItemsByID(pid: number) {
     const portfolioItems = await this.portfolioRepo.getPortfolioDetByID(pid);
     // * array of promis to resolve from Promise.all method
-    const stockPromises = portfolioItems.map((data) =>
-      this.stocksRepo.getOnebyId(data.stockID),
+    const stockPromises = portfolioItems.map(
+      (data) => this.stocksRepo.getOnebyId(data.stockID)[0],
     );
     const stock = await Promise.all(stockPromises);
 
-    //* stock ko data ra posrtfolio ko data combine
+    //* stock ko data ra portfolio ko data combine
     const items = portfolioItems.map((data, index) => ({
       ...data,
       ...stock[index],
@@ -99,7 +99,9 @@ export class PortfolioService {
     return rsi;
   }
   async calculateRSI(symbolId: string) {
-    const stockData = await this.stocksRepo.getOnebyId(parseInt(symbolId));
+    let stockData = await this.stocksRepo.getOnebyId(parseInt(symbolId));
+    stockData = stockData[0];
+    console.log(stockData);
     const symbol = stockData?.symbol;
     // bring the todays date and 14 day ago time in epoch timestamp
     const today = new Date();
@@ -108,10 +110,10 @@ export class PortfolioService {
       today.getMonth(),
       today.getDate() - 30,
     );
-
     const todayEpoch = Math.floor(today.getTime() / 1000);
     const fourteenDaysAgoEpoch = Math.floor(fourteenDaysAgo.getTime() / 1000);
-    const url = `https://nepsealpha.com/trading/0/history?symbol=${symbol}&resolution=1D&from=${fourteenDaysAgoEpoch}&to=${todayEpoch}`;
+    console.log('rsi');
+    const url = `https://nepsealpha.com/trading/0/history?symbol=${symbol}&resolution=1D&from=${fourteenDaysAgoEpoch}&to=${todayEpoch}&pass=ok&force=0.9015580012767925&currencyCode=NRS`;
     const data = await axios.get(url);
     if (data.data.s === 'no_data') return { message: 'no data found' };
     const closePrice = data.data.c;

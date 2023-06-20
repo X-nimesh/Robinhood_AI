@@ -99,16 +99,21 @@ const Portfolio = () => {
     const handlePortfolioChange = async (pid: string) => {
         setportfolioId(parseInt(pid));
         let stocks = await axios.get(`http://localhost:3000/portfolio/${pid}`);
+        console.log(stocks.data)
         let investmentVal = 0;
         stocks?.data?.forEach((stock: any) => {
             investmentVal += stock.purchase_price * stock.quantity;
         })
         setportfolioDet((port) => ({ ...port, investmentVal }));
         const combined = addStocks(stocks.data)
+        console.log(combined)
         let stockWithRsi = await Promise.all(combined.map(async (stock: any) => {
+            console.log(stock.stockID)
             const rsi = await axios.get(`http://localhost:3000/portfolio/rsi?symbol=${stock.stockID}`);
+            console.log(rsi)
             return { ...stock, rsi: rsi.data.rsi }
         }))
+
         setStocks(stockWithRsi);
     }
     const numberWithCommas = (x: any) => {
@@ -217,7 +222,7 @@ const Portfolio = () => {
                             else if (data.rsi < 30) {
                                 risk = "Low"
                             }
-
+                            // console.log(data)
                             return (
                                 <Tr key={index}>
                                     <Tooltip label={data.stockName} aria-label='A tooltip' >
@@ -230,7 +235,7 @@ const Portfolio = () => {
                                     </Tooltip>
                                     <Td isNumeric>{ltp}</Td>
                                     <Td isNumeric>{data.quantity}</Td>
-                                    <Td color={risk === "High" ? '#e53c3c' : risk === "Low" && '#00bf49'}>{risk}({data.rsi.toFixed(2)})</Td>
+                                    <Td >{risk}({data?.rsi?.toFixed(2)})</Td>
                                     <Td isNumeric>{data.purchase_price}</Td>
                                     <Td isNumeric>Rs. {numberWithCommas(purchasedValue)}</Td>
                                     <Td isNumeric>Rs.{numberWithCommas(marketVal)}</Td>
