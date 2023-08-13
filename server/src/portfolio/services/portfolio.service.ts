@@ -98,9 +98,27 @@ export class PortfolioService {
     const rsi = 100.0 - 100.0 / (1 + relativeStrength);
     return rsi;
   }
+  async getstockData(symbol: string, todayEpoch, fourteenDaysAgoEpoch) {
+    let data;
+    await fetch(
+      `https://nepsealpha.com/trading/0/history?symbol=${symbol}&resolution=1D&from=${fourteenDaysAgoEpoch}&to=${todayEpoch}&pass=ok&force=0.9015580012767925&currencyCode=NRS`,
+      {
+        method: 'GET',
+      },
+    )
+      .then((res) => res.json())
+      .then((stockData) => {
+        console.log(stockData);
+        data = stockData;
+      })
+      .catch((err) => console.log(err));
+
+    return data;
+  }
   async calculateRSI(symbolId: string) {
-    let stockData = await this.stocksRepo.getOnebyId(parseInt(symbolId));
-    stockData = stockData[0];
+    const stockData = await this.stocksRepo.getOnebyId(parseInt(symbolId));
+    // stockData = stockData[0];
+
     console.log(stockData);
     const symbol = stockData?.symbol;
     // bring the todays date and 14 day ago time in epoch timestamp
@@ -113,13 +131,45 @@ export class PortfolioService {
     const todayEpoch = Math.floor(today.getTime() / 1000);
     const fourteenDaysAgoEpoch = Math.floor(fourteenDaysAgo.getTime() / 1000);
     console.log('rsi');
-    const url = `https://nepsealpha.com/trading/0/history?symbol=${symbol}&resolution=1D&from=${fourteenDaysAgoEpoch}&to=${todayEpoch}&pass=ok&force=0.9015580012767925&currencyCode=NRS`;
-    const data = await axios.get(url);
-    if (data.data.s === 'no_data') return { message: 'no data found' };
-    const closePrice = data.data.c;
-    const rsi = this.rsifromClosingPrice(closePrice);
+    try {
+      // * only fetch works axios throwing cloudflare bot protection error
+      //   await fetch(
+      //     `https://nepsealpha.com/trading/0/history?symbol=${symbol}&resolution=1D&from=${fourteenDaysAgoEpoch}&to=${todayEpoch}&pass=ok&force=0.9015580012767925&currencyCode=NRS`,
+      //     {
+      //       method: 'GET',
+      //     },
+      //   )
+      //     .then((res) => res.json())
+      //     .then((stockData) => {
+      //       console.log(stockData);
+      //       data = stockData;
+      //     })
+      //     .catch((err) => console.log(err));
 
-    console.log(rsi);
-    return { stockName: stockData.stockName, symbol: stockData.symbol, rsi };
+      //   console.log(data);
+      //   //   const url = `https://nepsealpha.com/trading/0/history?symbol=${symbol}&resolution=1D&from=${fourteenDaysAgoEpoch}&to=${todayEpoch}&pass=ok&force=0.9015580012767925&currencyCode=NRS`;
+      //   //   console.log(url);
+      //   //   const data = await axios.get(url);
+      const data = await this.getstockData(
+        symbol,
+        todayEpoch,
+        fourteenDaysAgoEpoch,
+      );
+      if (data.s === 'no_data') return { message: 'no data found' };
+      const closePrice = data.c;
+      console.log(closePrice);
+      const rsi = this.rsifromClosingPrice(closePrice);
+      //   const rsi = 0.2;
+      console.log(rsi);
+      console.log(stockData);
+      return { stockName: stockData.stockName, symbol: stockData.symbol, rsi };
+    } catch (error) {
+      console.log(error);
+
+      return { message: 'error' };
+    }
+  }
+  async deleteStock(pid: number, stockId: number) {
+    return this.portfolioRepo.deleteStock(pid, stockId);
   }
 }

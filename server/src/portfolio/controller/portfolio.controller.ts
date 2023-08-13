@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PortfolioService } from '../services/portfolio.service';
 import { addStockDto } from '../portfolioStocks.dto';
@@ -55,5 +63,9 @@ export class PortfolioController {
   async getPortfoliobyPID(@Param('pid') pid: string) {
     const pidNum = parseInt(pid);
     return this.portfolioService.getPortfoliosItemsByID(pidNum);
+  }
+  @Delete('stock/:pid')
+  async deleteStock(@Param('pid') pid: string) {
+    return this.portfolioService.deleteStock(pid);
   }
 }

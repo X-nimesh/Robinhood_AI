@@ -20,7 +20,13 @@ import DetailedStockPrice from '../components/DetailedStockPrice';
 const Dashboard = () => {
     const { sharePrice, updateSharePrice } = useContext(SharePriceContext);
     const [spinner, setspinner] = useState(true);
-
+    // const getSharePrice = async () => {
+    //     const url = `https://nepsealpha.com/trading/0/history?symbol=HIDCL&resolution=1D&from=1688926500&to=1691599286&pass=ok&force=0.9015580012767925&currencyCode=NRS`;
+    //     console.log(url);
+    //     const data = await axios.get(url);
+    //     console.log(data);
+    // }
+    // getSharePrice();
     return (
         <Flex flexDirection={'column'} gap="20px" marginTop={"80px"} >
             {/* table to show sshare marketi priice */}

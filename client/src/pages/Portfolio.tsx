@@ -111,9 +111,9 @@ const Portfolio = () => {
             console.log(stock.stockID)
             const rsi = await axios.get(`http://localhost:3000/portfolio/rsi?symbol=${stock.stockID}`);
             console.log(rsi)
-            return { ...stock, rsi: rsi.data.rsi }
+            return { ...stock, rsi: rsi.data.rsi, stockName: rsi.data.stockName, symbol: rsi.data.symbol }
         }))
-
+        console.log(stockWithRsi)
         setStocks(stockWithRsi);
     }
     const numberWithCommas = (x: any) => {
@@ -177,7 +177,7 @@ const Portfolio = () => {
                 </Modal>
             </Flex>
             <TableContainer>
-                <Table variant='striped' colorScheme='whiteAlpha'>
+                <Table variant='simple' colorScheme='whiteAlpha'>
                     <Thead>
                         <Tr>
                             <Th>Stock Name</Th>
@@ -209,6 +209,7 @@ const Portfolio = () => {
                         </Tr> */}
 
                         {stocks?.map((data: any, index: number) => {
+                            console.log(data)
                             let ltp = findLtp(data.symbol);
                             const purchasedValue = data.purchase_price * data.quantity;
                             const marketVal = ltp * data.quantity;
@@ -216,12 +217,16 @@ const Portfolio = () => {
                             const profit = marketVal - purchasedValue;
                             const per: number = profit / purchasedValue;
                             let risk = "Normal";
+                            let color = "orange";
                             if (data.rsi > 70) {
                                 risk = "High"
+                                color = "red"
                             }
                             else if (data.rsi < 30) {
                                 risk = "Low"
+                                color = "green"
                             }
+                            console.log(color)
                             // console.log(data)
                             return (
                                 <Tr key={index}>
@@ -235,11 +240,17 @@ const Portfolio = () => {
                                     </Tooltip>
                                     <Td isNumeric>{ltp}</Td>
                                     <Td isNumeric>{data.quantity}</Td>
-                                    <Td >{risk}({data?.rsi?.toFixed(2)})</Td>
+                                    <Td backgroundColor={color}>
+                                        <Text fontWeight={'900'}>
+                                            {risk}({data?.rsi?.toFixed(2)})
+                                        </Text>
+                                    </Td>
                                     <Td isNumeric>{data.purchase_price}</Td>
                                     <Td isNumeric>Rs. {numberWithCommas(purchasedValue)}</Td>
                                     <Td isNumeric>Rs.{numberWithCommas(marketVal)}</Td>
-                                    <Td isNumeric color={per < 0 ? '#e53c3c' : '#00bf49'}>{`${per.toFixed(2)}`}% ({`Rs. ${numberWithCommas(profit)}`})</Td>
+                                    <Td isNumeric color={per < 0 ? '#e53c3c' : '#00bf49'} >
+                                        {`${per.toFixed(2)}`}% ({`Rs. ${numberWithCommas(profit)}`})
+                                    </Td>
                                     <Td >
                                         <Flex gap="20px">
                                             <BiEditAlt onClick={editClick} />
