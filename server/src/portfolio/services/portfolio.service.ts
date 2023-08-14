@@ -162,14 +162,19 @@ export class PortfolioService {
       //   const rsi = 0.2;
       console.log(rsi);
       console.log(stockData);
-      return { stockName: stockData.stockName, symbol: stockData.symbol, rsi };
+      return {
+        stockName: stockData.stockName,
+        symbol: stockData.symbol,
+        rsi,
+        stockId: stockData.id,
+      };
     } catch (error) {
       console.log(error);
 
       return { message: 'error' };
     }
   }
-  async deleteStock(pid: number, stockId: number) {
-    return this.portfolioRepo.deleteStock(pid, stockId);
+  async deleteStock(sid: number) {
+    return this.portfolioRepo.deleteStock(sid);
   }
 }

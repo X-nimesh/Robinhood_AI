@@ -43,4 +43,9 @@ export class PortfolioRepo {
 
     return this.portfolioStockEnity.save(created);
   }
+  async deleteStock(stockID: number) {
+    return this.portfolioStockEnity.delete({
+      stockID,
+    });
+  }
 }

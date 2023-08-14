@@ -64,8 +64,8 @@ export class PortfolioController {
     const pidNum = parseInt(pid);
     return this.portfolioService.getPortfoliosItemsByID(pidNum);
   }
-  @Delete('stock/:pid')
-  async deleteStock(@Param('pid') pid: string) {
-    return this.portfolioService.deleteStock(pid);
+  @Delete('stock/:sid')
+  async deleteStock(@Param('sid') sid: number) {
+    return this.portfolioService.deleteStock(sid);
   }
 }

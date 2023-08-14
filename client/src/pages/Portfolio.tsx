@@ -64,6 +64,7 @@ const Portfolio = () => {
         investmentVal: 0,
         portfolioValue: 0
     });
+    const [portfolioValue, setportfolioValue] = useState(0);
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -85,9 +86,18 @@ const Portfolio = () => {
     function editClick() {
         alert("Edit");
     }
-    function deleteClick() {
+    function deleteClick(stockId: string) {
         const delConfirm = confirm("Delete");
-        alert(delConfirm);
+        if (delConfirm) {
+            axios.delete(`http://localhost:3000/portfolio/stock/${stockId}`)
+                .then((res) => {
+                    console.log(res);
+                    getportfolios();
+                })
+                .catch((err) => {
+                    console.log(err);
+                })
+        }
     }
     const getportfolios = async () => {
         let portfolioList = await axios.get(`http://localhost:3000/portfolio/user/${userId}`);
@@ -95,7 +105,10 @@ const Portfolio = () => {
         setportfolios(portfolioList.data);
         handlePortfolioChange(portfolioList.data[0].id)
     }
-
+    const findLtp = (ltp: string) => {
+        const foundStock = sharePrice?.find((stock: any) => stock.stockSymbol === ltp);
+        return foundStock?.closingPrice;
+    }
     const handlePortfolioChange = async (pid: string) => {
         setportfolioId(parseInt(pid));
         let stocks = await axios.get(`http://localhost:3000/portfolio/${pid}`);
@@ -111,8 +124,22 @@ const Portfolio = () => {
             console.log(stock.stockID)
             const rsi = await axios.get(`http://localhost:3000/portfolio/rsi?symbol=${stock.stockID}`);
             console.log(rsi)
-            return { ...stock, rsi: rsi.data.rsi, stockName: rsi.data.stockName, symbol: rsi.data.symbol }
+            return {
+                ...stock, rsi: rsi.data.rsi,
+                stockName: rsi.data.stockName,
+                symbol: rsi.data.symbol,
+                stockId: rsi.data.stockId
+            }
         }))
+        let stockval = 0;
+        await stockWithRsi.map((data: any) => {
+            let ltp = findLtp(data.symbol);
+            const marketVal = ltp * data.quantity;
+            stockval += marketVal;
+            console.log({ stockval, ltp, data })
+        })
+
+        setportfolioValue(stockval);
         console.log(stockWithRsi)
         setStocks(stockWithRsi);
     }
@@ -124,10 +151,7 @@ const Portfolio = () => {
     useEffect(() => {
         getportfolios()
     }, [])
-    const findLtp = (ltp: string) => {
-        const foundStock = sharePrice?.find((stock: any) => stock.stockSymbol === ltp);
-        return foundStock?.closingPrice;
-    }
+
     return (
         <Flex flexDirection={"column"} marginTop={'70px'}>
             <Flex gap="20px" marginTop={"40px"}>
@@ -135,7 +159,7 @@ const Portfolio = () => {
                     <Text fontSize={"xl"}>Portfolio Value:</Text>
                     <Flex>
                         <Text fontSize={"l"}>Total:
-                            <Text fontSize={"l"} as='span'> Rs. 2,00,000</Text>
+                            <Text fontSize={"l"} as='span'> Rs. {portfolioValue}</Text>
                         </Text>
                     </Flex>
                 </Flex>
@@ -153,8 +177,11 @@ const Portfolio = () => {
                 </Flex>
             </Flex>
             <Divider marginTop={"30px"} />
-            <Flex justifyContent={"space-between"} marginY={"20px"}>
-                <Flex gap="50px">
+            <Flex justifyContent={"space-between"} marginY={"20px"} paddingLeft={'25px'}>
+                <Text>
+                    <Text fontSize={"4xl"} fontWeight={'bold'}>Stocks</Text>
+                </Text>
+                {/* <Flex gap="50px">
                     <Text fontSize={"2xl"}>Stocks</Text>
                     <Select variant={"flushed"}
                         title='portfolios'
@@ -168,7 +195,7 @@ const Portfolio = () => {
                         }
                         )}
                     </Select>
-                </Flex>
+                </Flex> */}
                 <Button colorScheme="blue" size="md" borderRadius={"30px"} onClick={onOpen}>Add Stock</Button>
                 <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false} isCentered motionPreset='slideInBottom' size={"5xl"} >
                     <ModalOverlay />
@@ -253,8 +280,8 @@ const Portfolio = () => {
                                     </Td>
                                     <Td >
                                         <Flex gap="20px">
-                                            <BiEditAlt onClick={editClick} />
-                                            <AiOutlineDelete onClick={deleteClick} />
+                                            {/* <BiEditAlt onClick={editClick} color='#00bf49' /> */}
+                                            <AiOutlineDelete onClick={() => deleteClick(data.stockId)} color="red" />
                                         </Flex>
                                     </Td>
                                 </Tr>
