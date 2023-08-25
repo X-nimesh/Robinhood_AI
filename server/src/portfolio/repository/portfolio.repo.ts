@@ -14,6 +14,15 @@ export class PortfolioRepo {
     @InjectRepository(PortfolioStocksEntity)
     private portfolioStockEnity: Repository<PortfolioStocksEntity>,
   ) {}
+  async createPortfolio(uid: string) {
+    const date = new Date();
+    const created = this.portfolioEnity.create({
+      userId: parseInt(uid),
+      created_at: date,
+      updated_at: date,
+    });
+    return this.portfolioEnity.save(created);
+  }
   async getPortfolioByID(uid: string) {
     const uidNum = parseInt(uid);
     return this.portfolioEnity.findBy({ userId: uidNum });
@@ -43,6 +52,34 @@ export class PortfolioRepo {
 
     return this.portfolioStockEnity.save(created);
   }
+  async updateStock(
+    pid: number,
+    stockID: number,
+    quantity: number,
+    purchase_price: number,
+    purchase_date: Date,
+  ) {
+    const existingStock = await this.portfolioStockEnity.findOne({
+      where: {
+        portfolioID: pid,
+        stockID: stockID,
+      },
+    });
+
+    const date = new Date();
+    if (quantity > 0) {
+      existingStock.purchase_price =
+        (existingStock.purchase_price + purchase_price) / 2;
+    }
+
+    console.log('asd');
+    console.log({ purchase_date, date });
+    existingStock.quantity += quantity;
+    existingStock.purchase_date = purchase_date;
+    existingStock.updated_at = date;
+    return this.portfolioStockEnity.save(existingStock);
+  }
+
   async deleteStock(stockID: number) {
     return this.portfolioStockEnity.delete({
       stockID,

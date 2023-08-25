@@ -6,10 +6,11 @@ import { UsersEntity } from 'src/users/models/users.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStategy } from './jwt.strategy';
+import { PortfolioEntity } from 'src/portfolio/model/portfolio.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UsersEntity]),
+    TypeOrmModule.forFeature([UsersEntity, PortfolioEntity]),
     JwtModule.register({
       secret: 'secretNimesh',
       signOptions: { expiresIn: '5h' },

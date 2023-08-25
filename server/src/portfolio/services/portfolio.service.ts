@@ -23,6 +23,9 @@ export class PortfolioService {
     console.log(portfolioDet);
     return portfolioDet;
   }
+  async createPortfolio(uid: string) {
+    return this.portfolioRepo.createPortfolio(uid);
+  }
   //   async getportfoliosbyID(pid: number) {
   //     const portfolioItems = await this.portfolioRepo.getPortfolioDetByID(pid);
   //     const items = [];
@@ -57,19 +60,41 @@ export class PortfolioService {
   }
 
   async addStock(pid, data: addStockDto) {
-    // const stockData = await this.getPortfoliosByID(pid);
-    // if (stockData.find((stock) => stock.id == data.stockSymId)) {
-    //   if (data.transitionType === TranscactionType.buy) {
-    //     this.portfolioRepo;
-    //   }
-    //}
-    return this.portfolioRepo.addStock(
-      pid,
-      data.stockSymId,
-      data.quantity,
-      data.purchasePrice,
-      data.purchaseDate,
-    );
+    const stockData = await this.portfolioRepo.getPortfolioDetByID(pid);
+    console.log({ stockData });
+    const purchaseDate = new Date(data.purchaseDate);
+    console.log({ purchaseDate });
+    if (stockData.find((stock) => stock.stockID == data.stockSymId)) {
+      if (data.transitionType === TranscactionType.buy) {
+        console.log('buy');
+        this.portfolioRepo.updateStock(
+          pid,
+          data.stockSymId,
+          data.quantity,
+          data.purchasePrice,
+          purchaseDate,
+        );
+      } else {
+        console.log('sell');
+        this.portfolioRepo.updateStock(
+          pid,
+          data.stockSymId,
+          -data.quantity,
+          data.purchasePrice,
+          purchaseDate,
+        );
+      }
+    } else {
+      console.log('added');
+      this.portfolioRepo.addStock(
+        pid,
+        data.stockSymId,
+        data.quantity,
+        data.purchasePrice,
+        data.purchaseDate,
+      );
+    }
+    return 'updated';
   }
   //   funstion to calculate rsi
   rsifromClosingPrice(closePrices) {
@@ -172,6 +197,34 @@ export class PortfolioService {
       console.log(error);
 
       return { message: 'error' };
+    }
+  }
+  async getStockDetails(symbolId: string) {
+    const stockData = await this.stocksRepo.getOnebyId(parseInt(symbolId));
+    // stockData = stockData[0];
+
+    console.log(stockData);
+    const symbol = stockData?.symbol;
+    // bring the todays date and 14 day ago time in epoch timestamp
+    const today = new Date();
+    const fourteenDaysAgo = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 30,
+    );
+    const todayEpoch = Math.floor(today.getTime() / 1000);
+    const fourteenDaysAgoEpoch = Math.floor(fourteenDaysAgo.getTime() / 1000);
+    console.log('rsi');
+    try {
+      const data = await this.getstockData(
+        symbol,
+        todayEpoch,
+        fourteenDaysAgoEpoch,
+      );
+      if (data.s === 'no_data') return { message: 'no data found' };
+      return data.c;
+    } catch (error) {
+      console.log(error);
     }
   }
   async deleteStock(sid: number) {

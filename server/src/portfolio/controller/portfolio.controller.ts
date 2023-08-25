@@ -21,13 +21,14 @@ export class PortfolioController {
   async getSharePrice() {
     return this.portfolioService.getPrices();
   }
+
   @Get('/user/:uid')
   async getPortfoliobyUID(@Param('uid') uid: string) {
     return this.portfolioService.getPortfolioByUID(uid);
   }
   @Post('/stock/add/:pid')
   async addStocks(@Param('pid') pid: number, @Body() data: addStockDto) {
-    // console.log(pid, data);
+    console.log(pid, data);
     return this.portfolioService.addStock(pid, data);
   }
   @Get('/get/trial')
@@ -63,6 +64,11 @@ export class PortfolioController {
   async getPortfoliobyPID(@Param('pid') pid: string) {
     const pidNum = parseInt(pid);
     return this.portfolioService.getPortfoliosItemsByID(pidNum);
+  }
+  @Get('/stock/history/:sid')
+  async getStockHistory(@Param('sid') sid: string) {
+    // const sidNum = parseInt(sid);
+    return this.portfolioService.getStockDetails(sid);
   }
   @Delete('stock/:sid')
   async deleteStock(@Param('sid') sid: number) {

@@ -18,7 +18,7 @@ export const typeOrmConfig = () => {
         `/../database/subscribers/typeorm-entity.subscriber.{ts,js}`,
       ),
     ],
-    synchronize: false,
+    synchronize: true,
   };
   return obj;
 };

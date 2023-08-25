@@ -45,4 +45,9 @@ export class UsersController {
   async getUser(@Req() req) {
     return await this.usersService.getUser(req.params.id);
   }
+  @UseGuards(jwtGuard)
+  @Get('/me')
+  async getMe(@Req() req) {
+    return await this.usersService.getUser(req.user.userId);
+  }
 }

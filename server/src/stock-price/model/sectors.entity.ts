@@ -6,8 +6,8 @@ export class SectorEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => StocksEntity, (stock) => stock.Sector)
-  stock: StocksEntity[];
+  //   @OneToMany(() => StocksEntity, (stock) => stock.Sector)
+  //   stock: StocksEntity[];
 
   @Column({ name: 'sector_name' })
   Sector: string;

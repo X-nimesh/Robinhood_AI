@@ -103,6 +103,7 @@ const Portfolio = () => {
         let portfolioList = await axios.get(`http://localhost:3000/portfolio/user/${userId}`);
         // let trialData = await axios.get('https://nepsealpha.com/trading/1/search?limit=500');
         setportfolios(portfolioList.data);
+        console.log(portfolioList.data[0].id)
         handlePortfolioChange(portfolioList.data[0].id)
     }
     const findLtp = (ltp: string) => {
@@ -111,6 +112,7 @@ const Portfolio = () => {
     }
     const handlePortfolioChange = async (pid: string) => {
         setportfolioId(parseInt(pid));
+        console.log({ pid })
         let stocks = await axios.get(`http://localhost:3000/portfolio/${pid}`);
         console.log(stocks.data)
         let investmentVal = 0;
@@ -119,11 +121,11 @@ const Portfolio = () => {
         })
         setportfolioDet((port) => ({ ...port, investmentVal }));
         const combined = addStocks(stocks.data)
-        console.log(combined)
+        // console.log(combined)
         let stockWithRsi = await Promise.all(combined.map(async (stock: any) => {
-            console.log(stock.stockID)
+            // console.log(stock.stockID)
             const rsi = await axios.get(`http://localhost:3000/portfolio/rsi?symbol=${stock.stockID}`);
-            console.log(rsi)
+            // console.log(rsi)
             return {
                 ...stock, rsi: rsi.data.rsi,
                 stockName: rsi.data.stockName,
@@ -132,15 +134,19 @@ const Portfolio = () => {
             }
         }))
         let stockval = 0;
-        await stockWithRsi.map((data: any) => {
+        console.log({ stockWithRsi })
+
+        stockWithRsi.map((data: any) => {
             let ltp = findLtp(data.symbol);
+            // console.log({ ltp, data })
             const marketVal = ltp * data.quantity;
             stockval += marketVal;
+            console.log({ stockval, marketVal })
             console.log({ stockval, ltp, data })
         })
-
+        console.log({ stockval })
         setportfolioValue(stockval);
-        console.log(stockWithRsi)
+        // console.log(stockWithRsi)
         setStocks(stockWithRsi);
     }
     const numberWithCommas = (x: any) => {
@@ -159,7 +165,7 @@ const Portfolio = () => {
                     <Text fontSize={"xl"}>Portfolio Value:</Text>
                     <Flex>
                         <Text fontSize={"l"}>Total:
-                            <Text fontSize={"l"} as='span'> Rs. {portfolioValue}</Text>
+                            <Text fontSize={"l"} as='span'> Rs. {numberWithCommas(portfolioValue)}</Text>
                         </Text>
                     </Flex>
                 </Flex>
@@ -170,10 +176,10 @@ const Portfolio = () => {
                         </Text>
                     </Flex>
                 </Flex>
-                <Flex flexDirection={"column"} p="40px" background={"green"} w="20%" minW="300px" borderRadius={"30px"} gap="10px">
+                <Flex flexDirection={"column"} p="40px" background={(portfolioValue - portfolioDet.investmentVal > 0) ? 'green' : 'red'} w="20%" minW="300px" borderRadius={"30px"} gap="10px">
                     <Text fontSize={"xl"}>Investment Return:</Text>
-                    <Text fontSize={"xl"} fontWeight={"bold"}>100%</Text>
-                    <Text fontSize={"xl"} fontWeight={"bold"}>Rs. 1,00,000</Text>
+                    <Text fontSize={"xl"} fontWeight={"bold"}>{(((portfolioValue - portfolioDet.investmentVal) / portfolioDet.investmentVal) * 100).toFixed(2)}%</Text>
+                    <Text fontSize={"xl"} fontWeight={"bold"}>Rs. {numberWithCommas(portfolioValue - portfolioDet.investmentVal)}</Text>
                 </Flex>
             </Flex>
             <Divider marginTop={"30px"} />
@@ -242,10 +248,11 @@ const Portfolio = () => {
                             const marketVal = ltp * data.quantity;
                             let total = portfolioDet.portfolioValue + marketVal;
                             const profit = marketVal - purchasedValue;
-                            const per: number = profit / purchasedValue;
+                            const per: number = (profit / purchasedValue) * 100;
                             let risk = "Normal";
                             let color = "orange";
                             if (data.rsi > 70) {
+
                                 risk = "High"
                                 color = "red"
                             }
@@ -259,7 +266,7 @@ const Portfolio = () => {
                                 <Tr key={index}>
                                     <Tooltip label={data.stockName} aria-label='A tooltip' >
                                         <Td maxWidth={'200px'} overflow={'clip'} overflowWrap={'break-word'}
-                                            onClick={() => navigate(`/stocks/${data.id}`)}>
+                                            onClick={() => navigate(`/stocks/${data.stockID}`)}>
                                             <Text>
                                                 {data.symbol}
                                             </Text>

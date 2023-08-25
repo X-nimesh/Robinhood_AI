@@ -3,11 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersEntity } from '../models/users.entity';
 import * as bcrypt from 'bcrypt';
+import { PortfolioEntity } from 'src/portfolio/model/portfolio.entity';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
     private userRepo: Repository<UsersEntity>,
+    @InjectRepository(PortfolioEntity)
+    private portfolioRepo: Repository<PortfolioEntity>,
   ) {}
 
   async createUser(user: {
@@ -26,7 +29,14 @@ export class UsersService {
       created_at: new Date(),
       updated_at: new Date(),
     };
-    const userRes = this.userRepo.save(userDet);
+    const userRes = await this.userRepo.save(userDet);
+
+    const portfolioRes = await this.portfolioRepo.save({
+      name: 'Default',
+
+      userId: userRes.id,
+    });
+
     return userRes;
   }
   async getAllUsers() {

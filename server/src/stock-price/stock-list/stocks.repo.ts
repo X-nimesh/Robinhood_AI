@@ -11,9 +11,9 @@ export class StocksRepo {
     return this.stocksentity.find();
   }
   async getOnebyId(id: number): Promise<StocksEntity> {
+    console.log(id);
     return this.stocksentity.findOne({
       where: { id },
-      select: ['stockName', 'symbol', 'id', 'totalShares', 'Sector'],
     });
 
     const query = `select st.id as "id",st.stock_name as "stockName", st.stock_symbol as "symbol", st.total_shares as "totalshares", sec.sector_name as "sectorName" from

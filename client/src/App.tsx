@@ -16,6 +16,7 @@ import NewsPage from './pages/NewsPage'
 import { SharePriceContext } from './context/SharePriceContext'
 import axios from 'axios'
 import StockDetailsPage from './pages/StockDetailsPage'
+import ProfilePage from './pages/ProfilePage'
 function App() {
     const { sharePrice, updateSharePrice } = useContext(SharePriceContext);
 
@@ -41,6 +42,7 @@ function App() {
                         <Route path="/dashboard" element={<Home />} />
                     </Protected> */}
                     <Route path="dashboard" element={<Protected><Dashboard /></Protected>} />
+                    <Route path='profile' element={<Protected><ProfilePage /></Protected>} />
                     <Route path="portfolio" element={<Protected><Portfolio /></Protected>} />
                     <Route path="news/:id" element={<Protected><NewsPage /></Protected>} />
                     <Route path="stocks/:id" element={<Protected><StockDetailsPage /></Protected>} />

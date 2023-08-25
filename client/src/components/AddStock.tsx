@@ -69,6 +69,8 @@ const AddStock = (props: any) => {
                 console.log("submit");
                 const data = await axios.post(`http://localhost:3000/portfolio/stock/add/${portfolioId}`, values);
                 console.log(data);
+                // reload window using react router dom
+                window.location.reload();
                 onClose();
                 // localStorage.setItem('access_token', data.data.access_token);
                 // toast({
@@ -96,14 +98,17 @@ const AddStock = (props: any) => {
         const getData = setTimeout(async () => {
 
             const searchString = symstock?.toLowerCase();
+
             const filteredCharacters = stocks?.filter((price: any) => {
+                console.log(price)
                 return (
                     price.symbol.toLowerCase().includes(searchString)
                 );
             });
 
             //* to get stock name up in debentures case
-            console.log(filteredCharacters.reverse())
+            // console.log(filteredCharacters.reverse())
+            console.log(filteredCharacters)
             setsearchSym(filteredCharacters);
         }, 1000)
 

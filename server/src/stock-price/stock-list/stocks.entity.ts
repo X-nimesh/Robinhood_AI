@@ -23,13 +23,13 @@ export class StocksEntity {
   @OneToMany(() => PortfolioStocksEntity, (portfolio) => portfolio.stockID)
   portfolio: PortfolioStocksEntity[];
 
-  @Column({ name: 'sector_id' })
-  Sector: number;
+  //   @Column({ name: 'sector_id', nullable: true })
+  //   Sector: number;
 
-  @ManyToOne(() => SectorEntity, (sector) => sector.id)
-  @JoinColumn({ name: 'sector_id' })
-  sector: SectorEntity;
+  //   @ManyToOne(() => SectorEntity, (sector) => sector.id)
+  //   @JoinColumn({ name: 'sector_id' })
+  //   sector: SectorEntity;
 
-  @Column({ name: 'total_shares' })
-  totalShares: number;
+  //   @Column({ name: 'total_shares', nullable: true })
+  //   totalShares: number;
 }
